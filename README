@@ -5,7 +5,3 @@ Par Valentin Berthelot et Adrian Amigues (pour l'instant)
 Bibliothèques utilisées:
 	- bonsai.js (pour le dessin) (on pourrait utiliser easel.js sinon, peut être plus documenté, mais similaire)
 	- box2d.js (pour le moteur graphique)
-
-
-Aide pour box2d.js:
-	- http://blog.sethladd.com/2011/08/box2d-orientation-for-javascript.html
