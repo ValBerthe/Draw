@@ -1,0 +1,7 @@
+Projet linerider-like
+
+Par Valentin Berthelot et Adrian Amigues (pour l'instant)
+
+Bibliothèques utilisées:
+	- bonsai.js (pour le dessin) (on pourrait utiliser easel.js sinon, peut être plus documenté, mais similaire)
+	- box2d.js (pour le moteur graphique)
