@@ -1,3 +1,7 @@
-canvas {
+canvas, div {
 	border: 1px solid black;
+}
+
+#stage {
+	height: 200px;
 }
