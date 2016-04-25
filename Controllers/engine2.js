@@ -314,7 +314,7 @@ Physics.prototype.click = function(callback) {
         joint.SetTarget(new b2Vec2(point.x, point.y));
     });
 
-    this.element.addEventListener("mouseup", function (e) {
+    this.element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
         obj.body.SetLinearVelocity({x:0,y:0});
         obj = null;
         if (joint) {
@@ -327,9 +327,9 @@ Physics.prototype.click = function(callback) {
 };
 
 
+// CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
 
-
-function init() {
+function initi() {
     var img = new Image();
 
     physics = window.physics = new Physics(document.getElementById("canvasb2"));
@@ -340,12 +340,12 @@ function init() {
 
     floor = new Body(physics, {color: "green", border:"black", type: "static", x:0, y:fullH/physics.scale, height: (0.2*fullH)/physics.scale, width:2*fullW/physics.scale});
     block1 = new Body(physics, {color:"red", border:"black", x: 15, y:15, height: (0.1*fullH)/physics.scale, width: (0.3*fullW)/physics.scale});
-    block2 = new Body(physics, {color:"red", border:"black", x:35, y:15});
-    toon = new Body(physics, {color:"blue", shape: "circle", border: "black", x:13, y:2, radius: (0.1*fullH)/physics.scale})
+    block2 = new Body(physics, {color:"red", border:"black", x:40, y:15});
+    toon = new Body(physics, {color:"blue", shape: "circle", border: "black", x:(0.6*fullW)/physics.scale, y:2, radius: (0.05*fullH)/physics.scale})
 
     physics.dragNDrop();
     // physics.debug();
     requestAnimationFrame(gameLoop);
     img.src = "./Resources/Landscape/herbe.jpg";
 }
-window.addEventListener("load",init);
+window.addEventListener("load",initi);
