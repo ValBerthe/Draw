@@ -38,7 +38,7 @@ world = new b2World(
 // first we define some properties that we will use
 // a Fixture Definition defines the attributes of the object, such as density, friction, and restitution (bounciness).
 var fixDef = new b2FixtureDef;
-fixDef.density = 1.0;
+fixDef.density = 2;
 fixDef.friction = 0.5;
 fixDef.restitution = 0.2;
 
@@ -54,10 +54,18 @@ bodyDef.position.y = 300 / SCALE;
 // For simple boxes, be sure to note that Box2D wants half-width and half-height as arguments.
 fixDef.shape = new b2PolygonShape;
 // half width, half height.
-fixDef.shape.SetAsBox((600 / SCALE) / 2, (10/SCALE) / 2);
+fixDef.shape.SetAsBox((600 / SCALE) / 2, (50/SCALE) / 2);
 
 // With the static ground defined, we add it to the world:
 world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+
+var bodyDef = new b2BodyDef;
+bodyDef.type = b2Body.b2_staticBody;
+bodyDef.position.x = 400 / SCALE;
+bodyDef.position.y = 600 / SCALE;
+
+var fixDef.shape = new b2PolygonShape;
 
 
 // FALLING OBJECTS
