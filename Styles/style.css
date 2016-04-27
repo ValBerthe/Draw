@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 canvas { 
   border: 1px solid black; 
   display: block;
@@ -8,12 +7,4 @@ html, body {
   width:  100%;
   height: 100%;
   margin: 0px;
-=======
-canvas, div {
-	border: 1px solid black;
-}
-
-#stage {
-	height: 200px;
->>>>>>> origin/master
 }
