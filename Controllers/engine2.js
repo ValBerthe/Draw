@@ -291,7 +291,9 @@ Physics.prototype.click = function(callback) {
         self.world.QueryPoint(function (fixture) {
             obj = fixture.GetBody().GetUserData();
         }, point);
-        obj.body.SetType("static");
+        if (obj) {
+            obj.body.SetType("static");
+        }
     });
 
     this.element.addEventListener("mousemove", function (e) {       // Lorsqu'on bouge la souris, on bouge l'élément
@@ -315,7 +317,9 @@ Physics.prototype.click = function(callback) {
     });
 
     this.element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
-        obj.body.SetLinearVelocity({x:0,y:0});
+        if (obj){
+            obj.body.SetLinearVelocity({x:0,y:0});
+        }
         obj = null;
         if (joint) {
             self.world.DestroyJoint(joint);
@@ -348,4 +352,5 @@ function initi() {
     requestAnimationFrame(gameLoop);
     img.src = "./Resources/Landscape/herbe.jpg";
 }
+
 window.addEventListener("load",initi);
