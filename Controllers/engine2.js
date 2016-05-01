@@ -2,6 +2,23 @@
 
     var app = angular.module('runningBob', []); // main angularJS variable
 
+    app.controller('GameController', function(){
+        this.addGreenBall = function() {
+            var ball = new physics.Body({
+                color:"green", 
+                shape: "circle", 
+                border: "black", 
+                x:(Math.random()*canvasWidth)/physics.scale, 
+                y:Math.random()*(canvasHeight/2)/physics.scale, 
+                radius: (0.5 + Math.random())
+            });
+        };
+    });
+
+    var canvas;
+    var canvasWidth;
+    var canvasHeight;
+
 
     // **** Module physics : pour gérer box2d ****
     var physics = function() {
@@ -22,7 +39,7 @@
         // TODO ? We could put a '_' at the begining of private variables
         var gravity = new b2Vec2(0,9.8); // définition du vecteur gravité
         var world = new b2World(gravity, true); // création du monde
-        var element = $('#canvasb2').get(0);
+        var element = $('#canvas').get(0);
         var context = element.getContext("2d");
         var scale = 30; // l'échelle (combien de pixels/m ?)
         var dtRemaining = 0;
@@ -105,6 +122,12 @@
                 fixedRotation: false
             };
             this.details = detailsToSet || {};
+            if (this.details.x === "center")
+                this.details.x = canvasWidth / 2 / scale;
+            if (this.details.y === "center")
+                this.details.y = canvasHeight / 2 / scale;
+            if (this.details.y === "floor")
+                this.details.y = (canvasHeight / scale) - (this.details.height / 2);
 
             // Créer la définition
             this.definition = new b2BodyDef();
@@ -316,6 +339,7 @@
 
             dragNDrop: dragNDrop,
             step: step,
+            debug: debug,
         };
     }();
 
@@ -333,15 +357,18 @@
 
     // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
     $(document).ready(function() {
-        var fullW = window.innerWidth * 0.999;
-        var fullH = window.innerHeight * 0.998;
-        physics.context.canvas.width  = fullW;
-        physics.context.canvas.height = fullH;
+        canvas = $('#canvas');
+        // we set the canvas' height and width here so that the physics world size scales with the size of the canvas' container
+        canvas.get(0).width = canvas.parent().width();
+        canvas.get(0).height = canvas.parent().height();
+        canvasWidth = canvas.width();
+        canvasHeight = canvas.height();
 
-        var floor = new physics.Body({color: "green", border:"black", type: "static", x:0, y:fullH/physics.scale, height: (0.2*fullH)/physics.scale, width:2*fullW/physics.scale});
-        var block1 = new physics.Body({color:"red", border:"black", x: 15, y:15, height: (0.1*fullH)/physics.scale, width: (0.3*fullW)/physics.scale});
-        var block2 = new physics.Body({color:"red", border:"black", x:40, y:15});
-        var toon = new physics.Body({color:"blue", shape: "circle", border: "black", x:(0.6*fullW)/physics.scale, y:2, radius: (0.05*fullH)/physics.scale});
+        // You can position objects by passing "floor" or "center" instead of numbers
+        var floor = new physics.Body({color: "green", border:"black", type: "static", x:"center", y:"floor",height: 0.5, width:canvasWidth/physics.scale});
+        var block1 = new physics.Body({color:"red", border:"black", x: 6, y:0, height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
+        var block2 = new physics.Body({color:"red", border:"black", x:18, y:0});
+        var toon = new physics.Body({color:"blue", shape: "circle", border: "black", x:(0.6*canvasWidth)/physics.scale, y:2, radius: (0.05*canvasHeight)/physics.scale});
 
         physics.dragNDrop();
         // physics.debug();
