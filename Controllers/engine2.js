@@ -2,6 +2,19 @@
 
     var app = angular.module('runningBob', []); // main angularJS variable
 
+    app.controller('GameController', function(){
+        this.addGreenBall = function() {
+            var ball = new physics.Body({
+                color:"green", 
+                shape: "circle", 
+                border: "black", 
+                x:(Math.random()*canvasWidth)/physics.scale, 
+                y:Math.random()*(canvasHeight/2)/physics.scale, 
+                radius: (0.5 + Math.random())
+            });
+        };
+    });
+
     var canvas;
     var canvasWidth;
     var canvasHeight;
@@ -326,6 +339,7 @@
 
             dragNDrop: dragNDrop,
             step: step,
+            debug: debug,
         };
     }();
 
@@ -344,6 +358,7 @@
     // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
     $(document).ready(function() {
         canvas = $('#canvas');
+        // we set the canvas' height and width here so that the physics world size scales with the size of the canvas' container
         canvas.get(0).width = canvas.parent().width();
         canvas.get(0).height = canvas.parent().height();
         canvasWidth = canvas.width();

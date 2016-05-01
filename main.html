@@ -7,10 +7,10 @@
 
 
     <body>
-        <div id="gameDiv" class="container">
+        <div id="gameDiv" class="container" ng-controller="GameController as game">
             <div class="row">
                 <div id="buttonsDiv" class="col-lg-2">
-                    <button type="button" class="btn btn-default">Default</button>
+                    <button type="button" class="btn btn-default" ng-click="game.addGreenBall()">Green Ball</button>
                 </div>
                 <div id="canvasDiv" class="col-lg-10">
                     <canvas id="canvas"></canvas>
