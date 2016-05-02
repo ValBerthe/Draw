@@ -334,6 +334,11 @@ Physics.prototype.click = function(callback) {
 // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
 
 function initi() {
+
+    function toPixel(pos, hw) {
+        return (pos*hw)/physics.scale;
+    }
+
     var img = new Image();
 
     physics = window.physics = new Physics(document.getElementById("canvasb2"));
@@ -342,10 +347,12 @@ function initi() {
     physics.context.canvas.width  = fullW;
     physics.context.canvas.height = fullH;
 
-    floor = new Body(physics, {color: "green", border:"black", type: "static", x:0, y:fullH/physics.scale, height: (0.2*fullH)/physics.scale, width:2*fullW/physics.scale});
-    block1 = new Body(physics, {color:"red", border:"black", x: 15, y:15, height: (0.1*fullH)/physics.scale, width: (0.3*fullW)/physics.scale});
-    block2 = new Body(physics, {color:"red", border:"black", x:40, y:15});
-    toon = new Body(physics, {color:"blue", shape: "circle", border: "black", x:(0.6*fullW)/physics.scale, y:2, radius: (0.05*fullH)/physics.scale})
+    // floor = new Body(physics, {color: "green", border:"black", type: "static", x:0, y:fullH/physics.scale, height: (0.2*fullH)/physics.scale, width:2*fullW/physics.scale});
+    block1 = new Body(physics, {type: "static", color:"red", border:"black", x: 15, y:toPixel(0.8,fullH), height: (0.1*fullH)/physics.scale, width: (0.3*fullW)/physics.scale});
+    block2 = new Body(physics, {type: "static", color:"red", border:"black", x:40, y:toPixel(0.8,fullH)});
+    block3 = new Body(physics, {type: "static", color:"blue", shape: "circle", border: "black", x:(0.6*fullW)/physics.scale, y:toPixel(0.8,fullH), radius: (0.05*fullH)/physics.scale});
+    window.addEventListener("keypress", toon = new Body(physics, {color: "green", border: "black", x:toPixel(0.2,fullW), y: toPixel(0.5,fullH), vx: 10}));
+
 
     physics.dragNDrop();
     // physics.debug();
