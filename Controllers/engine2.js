@@ -257,6 +257,21 @@
                 context.restore();
             };
         };
+<<<<<<< HEAD
+    }
+
+    this.element.addEventListener("mousedown", function (e) {       // On chope l'élément en question avec QueryPoint (déjà utilisé lors du Physics.click)
+        e.preventDefault();
+        var point = calculateWorldPosition(e);
+        self.world.QueryPoint(function (fixture) {
+            obj = fixture.GetBody().GetUserData();
+        }, point);
+        if (obj) {
+            obj.body.SetType("static");
+        }
+    });
+=======
+>>>>>>> origin/master
 
 
         // var click = function(callback) {
@@ -278,6 +293,18 @@
         //     element.addEventListener("touchstart",handleClick);
         // };
 
+<<<<<<< HEAD
+    this.element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
+        if (obj){
+            obj.body.SetLinearVelocity({x:0,y:0});
+        }
+        obj = null;
+        if (joint) {
+            self.world.DestroyJoint(joint);
+            joint = null;
+        }
+=======
+>>>>>>> origin/master
 
         //La fonction permettant le drag & drop
         var dragNDrop = function () {
@@ -321,6 +348,15 @@
                 joint.SetTarget(new b2Vec2(point.x, point.y));
             });
 
+<<<<<<< HEAD
+function initi() {
+
+    function toPixel(pos, hw) {
+        return (pos*hw)/physics.scale;
+    }
+
+    var img = new Image();
+=======
             element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
                 if (obj)
                     obj.body.SetLinearVelocity({x:0,y:0});
@@ -331,6 +367,7 @@
                 }
             });
         };
+>>>>>>> origin/master
 
         // We return all the variables and function that we want to make accessible from outside the module !
         return {
@@ -339,6 +376,22 @@
             context: context,
             world: world,
 
+<<<<<<< HEAD
+    // floor = new Body(physics, {color: "green", border:"black", type: "static", x:0, y:fullH/physics.scale, height: (0.2*fullH)/physics.scale, width:2*fullW/physics.scale});
+    block1 = new Body(physics, {type: "static", color:"red", border:"black", x: 15, y:toPixel(0.8,fullH), height: (0.1*fullH)/physics.scale, width: (0.3*fullW)/physics.scale});
+    block2 = new Body(physics, {type: "static", color:"red", border:"black", x:40, y:toPixel(0.8,fullH)});
+    block3 = new Body(physics, {type: "static", color:"blue", shape: "circle", border: "black", x:(0.6*fullW)/physics.scale, y:toPixel(0.8,fullH), radius: (0.05*fullH)/physics.scale});
+    window.addEventListener("keypress", toon = new Body(physics, {color: "green", border: "black", x:toPixel(0.2,fullW), y: toPixel(0.5,fullH), vx: 10}));
+
+
+    physics.dragNDrop();
+    // physics.debug();
+    requestAnimationFrame(gameLoop);
+    img.src = "./Resources/Landscape/herbe.jpg";
+}
+
+window.addEventListener("load",initi);
+=======
             Body: Body,
 
             dragNDrop: dragNDrop,
@@ -392,3 +445,4 @@
         // img.src = "./Resources/Landscape/herbe.jpg";
     });
 })();
+>>>>>>> origin/master
