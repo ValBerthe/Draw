@@ -1,5 +1,7 @@
 (function() {
 
+    // Angular stuff
+
     var app = angular.module('runningBob', []); // main angularJS variable
 
     app.controller('GameController', function(){
@@ -10,10 +12,24 @@
                 border: "black", 
                 x:(Math.random()*canvasWidth)/physics.scale, 
                 y:Math.random()*(canvasHeight/2)/physics.scale, 
-                radius: (0.5 + Math.random())
+                radius: 0.5 + Math.random()
+            });
+        };
+        this.addRedRectangle = function() {
+            var ball = new physics.Body({
+                color:"red", 
+                border:"black", 
+                x:(Math.random()*canvasWidth)/physics.scale, 
+                y:Math.random()*(canvasHeight/2)/physics.scale, 
+                height: 0.5 + Math.random(), 
+                width: 0.5 + Math.random()
             });
         };
     });
+
+
+
+    // Global variables
 
     var canvas;
     var canvasWidth;
@@ -85,18 +101,6 @@
             debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
             world.SetDebugDraw(debugDraw);
         };
-
-        // We inform the page that we want to use the RequestAnimationFrame method for the display (more efficient)
-        window.requestAnimFrame = (function(){
-            return  window.requestAnimationFrame       || 
-                    window.webkitRequestAnimationFrame || 
-                    window.mozRequestAnimationFrame    || 
-                    window.oRequestAnimationFrame      || 
-                    window.msRequestAnimationFrame     || 
-                    function(/* function */ callback, /* DOMElement */ element){
-                        window.setTimeout(callback, 1000 / 60);
-                    };
-            })();
 
         // Constructeur pour les objets (rend beaucoup plus simple l'utilisation des classes de Box2D)
         var Body = function(detailsToSet) {
@@ -255,24 +259,24 @@
         };
 
 
-        var click = function(callback) {
-            function handleClick(e) {
-              e.preventDefault();
-              var point = {
-                    x: (e.offsetX || e.layerX) / scale,
-                    y: (e.offsetY || e.layerY) / scale
-                  };
+        // var click = function(callback) {
+        //     function handleClick(e) {
+        //       e.preventDefault();
+        //       var point = {
+        //             x: (e.offsetX || e.layerX) / scale,
+        //             y: (e.offsetY || e.layerY) / scale
+        //           };
 
-              world.QueryPoint(function(fixture) {
-                callback(fixture.GetBody(),
-                         fixture,
-                         point);
-              },point);
-            }
+        //       world.QueryPoint(function(fixture) {
+        //         callback(fixture.GetBody(),
+        //                  fixture,
+        //                  point);
+        //       },point);
+        //     }
 
-            element.addEventListener("click",handleClick);
-            element.addEventListener("touchstart",handleClick);
-        };
+        //     element.addEventListener("click",handleClick);
+        //     element.addEventListener("touchstart",handleClick);
+        // };
 
 
         //La fonction permettant le drag & drop
@@ -342,6 +346,18 @@
             debug: debug,
         };
     }();
+
+    // We inform the page that we want to use the RequestAnimationFrame method for the display (more efficient)
+    window.requestAnimFrame = (function(){
+        return  window.requestAnimationFrame       || 
+                window.webkitRequestAnimationFrame || 
+                window.mozRequestAnimationFrame    || 
+                window.oRequestAnimationFrame      || 
+                window.msRequestAnimationFrame     || 
+                function(/* function */ callback, /* DOMElement */ element){
+                    window.setTimeout(callback, 1000 / 60);
+                };
+    })();
 
     var lastFrame = new Date().getTime();
 
