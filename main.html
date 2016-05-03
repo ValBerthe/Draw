@@ -1,16 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="runningBob">
     <head>
+        <link rel="stylesheet" href="./Styles/bootstrap.css">
         <link rel="stylesheet" type="text/css" href="./Styles/style.css">
     </head>
 
 
     <body>
-        <canvas id="canvasb2" ></canvas>
+        <div id="gameDiv" class="container" ng-controller="GameController as game">
+            <div class="row">
+                <div id="buttonsDiv" class="col-lg-2">
+                    <button type="button" class="btn btn-default" ng-click="game.addGreenBall()">Green Ball</button>
+                </div>
+                <div id="canvasDiv" class="col-lg-10">
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
+        </div>
 
-        <!-- <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script> -->
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
         <script type="text/javascript" src="./Controllers/jquery.js"></script>
         <script type="text/javascript" src="./Controllers/Box2D.js"></script>
+        <!-- <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script> -->
         <script type="text/javascript" src="./Controllers/engine2.js"></script>
     </body>
 </html>
