@@ -1,5 +1,7 @@
 (function() {
 
+    // Angular stuff
+
     var app = angular.module('runningBob', []); // main angularJS variable
 
     app.controller('GameController', function(){
@@ -10,14 +12,38 @@
                 border: "black", 
                 x:(Math.random()*canvasWidth)/physics.scale, 
                 y:Math.random()*(canvasHeight/2)/physics.scale, 
-                radius: (0.5 + Math.random())
+                radius: 0.5 + Math.random()
+            });
+        };
+        this.addRedRectangle = function() {
+            var ball = new physics.Body({
+                color:"red", 
+                border:"black", 
+                x:(Math.random()*canvasWidth)/physics.scale, 
+                y:Math.random()*(canvasHeight/2)/physics.scale, 
+                height: 0.5 + Math.random(), 
+                width: 0.5 + Math.random()
+            });
+        };
+        this.addToon = function() {
+            var toon = new physics.Body({
+                color: "green", 
+                border: "black", 
+                x: physics.toPixel(0.2,canvasWidth), 
+                y: physics.toPixel(0.5,canvasHeight), 
+                vx: 10
             });
         };
     });
 
+
+
+    // Global variables
+
     var canvas;
     var canvasWidth;
     var canvasHeight;
+    var img = new Image();
 
 
     // **** Module physics : pour gérer box2d ****
@@ -85,18 +111,6 @@
             debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
             world.SetDebugDraw(debugDraw);
         };
-
-        // We inform the page that we want to use the RequestAnimationFrame method for the display (more efficient)
-        window.requestAnimFrame = (function(){
-            return  window.requestAnimationFrame       || 
-                    window.webkitRequestAnimationFrame || 
-                    window.mozRequestAnimationFrame    || 
-                    window.oRequestAnimationFrame      || 
-                    window.msRequestAnimationFrame     || 
-                    function(/* function */ callback, /* DOMElement */ element){
-                        window.setTimeout(callback, 1000 / 60);
-                    };
-            })();
 
         // Constructeur pour les objets (rend beaucoup plus simple l'utilisation des classes de Box2D)
         var Body = function(detailsToSet) {
@@ -253,54 +267,7 @@
                 context.restore();
             };
         };
-<<<<<<< HEAD
-    }
 
-    this.element.addEventListener("mousedown", function (e) {       // On chope l'élément en question avec QueryPoint (déjà utilisé lors du Physics.click)
-        e.preventDefault();
-        var point = calculateWorldPosition(e);
-        self.world.QueryPoint(function (fixture) {
-            obj = fixture.GetBody().GetUserData();
-        }, point);
-        if (obj) {
-            obj.body.SetType("static");
-        }
-    });
-=======
->>>>>>> origin/master
-
-
-        var click = function(callback) {
-            function handleClick(e) {
-              e.preventDefault();
-              var point = {
-                    x: (e.offsetX || e.layerX) / scale,
-                    y: (e.offsetY || e.layerY) / scale
-                  };
-
-              world.QueryPoint(function(fixture) {
-                callback(fixture.GetBody(),
-                         fixture,
-                         point);
-              },point);
-            }
-
-            element.addEventListener("click",handleClick);
-            element.addEventListener("touchstart",handleClick);
-        };
-
-<<<<<<< HEAD
-    this.element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
-        if (obj){
-            obj.body.SetLinearVelocity({x:0,y:0});
-        }
-        obj = null;
-        if (joint) {
-            self.world.DestroyJoint(joint);
-            joint = null;
-        }
-=======
->>>>>>> origin/master
 
         //La fonction permettant le drag & drop
         var dragNDrop = function () {
@@ -344,15 +311,6 @@
                 joint.SetTarget(new b2Vec2(point.x, point.y));
             });
 
-<<<<<<< HEAD
-function initi() {
-
-    function toPixel(pos, hw) {
-        return (pos*hw)/physics.scale;
-    }
-
-    var img = new Image();
-=======
             element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
                 if (obj)
                     obj.body.SetLinearVelocity({x:0,y:0});
@@ -363,7 +321,10 @@ function initi() {
                 }
             });
         };
->>>>>>> origin/master
+
+        var toPixel = function(pos, hw) {
+            return (pos*hw)/scale;
+        };
 
         // We return all the variables and function that we want to make accessible from outside the module !
         return {
@@ -371,30 +332,26 @@ function initi() {
             element: element,
             context: context,
             world: world,
-
-<<<<<<< HEAD
-    // floor = new Body(physics, {color: "green", border:"black", type: "static", x:0, y:fullH/physics.scale, height: (0.2*fullH)/physics.scale, width:2*fullW/physics.scale});
-    block1 = new Body(physics, {type: "static", color:"red", border:"black", x: 15, y:toPixel(0.8,fullH), height: (0.1*fullH)/physics.scale, width: (0.3*fullW)/physics.scale});
-    block2 = new Body(physics, {type: "static", color:"red", border:"black", x:40, y:toPixel(0.8,fullH)});
-    block3 = new Body(physics, {type: "static", color:"blue", shape: "circle", border: "black", x:(0.6*fullW)/physics.scale, y:toPixel(0.8,fullH), radius: (0.05*fullH)/physics.scale});
-    window.addEventListener("keypress", toon = new Body(physics, {color: "green", border: "black", x:toPixel(0.2,fullW), y: toPixel(0.5,fullH), vx: 10}));
-
-
-    physics.dragNDrop();
-    // physics.debug();
-    requestAnimationFrame(gameLoop);
-    img.src = "./Resources/Landscape/herbe.jpg";
-}
-
-window.addEventListener("load",initi);
-=======
             Body: Body,
 
             dragNDrop: dragNDrop,
             step: step,
             debug: debug,
+            toPixel: toPixel,
         };
     }();
+
+    // We inform the page that we want to use the RequestAnimationFrame method for the display (more efficient)
+    window.requestAnimFrame = (function(){
+        return  window.requestAnimationFrame       || 
+                window.webkitRequestAnimationFrame || 
+                window.mozRequestAnimationFrame    || 
+                window.oRequestAnimationFrame      || 
+                window.msRequestAnimationFrame     || 
+                function(/* function */ callback, /* DOMElement */ element){
+                    window.setTimeout(callback, 1000 / 60);
+                };
+    })();
 
     var lastFrame = new Date().getTime();
 
@@ -417,16 +374,13 @@ window.addEventListener("load",initi);
         canvasWidth = canvas.width();
         canvasHeight = canvas.height();
 
-        // You can position objects by passing "floor" or "center" instead of numbers
-        var floor = new physics.Body({color: "green", border:"black", type: "static", x:"center", y:"floor",height: 0.5, width:canvasWidth/physics.scale});
-        var block1 = new physics.Body({color:"red", border:"black", x: 6, y:0, height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
-        var block2 = new physics.Body({color:"red", border:"black", x:18, y:0});
-        var toon = new physics.Body({color:"blue", shape: "circle", border: "black", x:(0.6*canvasWidth)/physics.scale, y:2, radius: (0.05*canvasHeight)/physics.scale});
+        var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
+        var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
+        var block3 = new physics.Body({type: "static", color:"blue", shape: "circle", border: "black", x:(0.6*canvasWidth)/physics.scale, y:physics.toPixel(0.8,canvasHeight), radius: (0.05*canvasHeight)/physics.scale});
 
         physics.dragNDrop();
         // physics.debug();
         requestAnimationFrame(gameLoop);
-        // img.src = "./Resources/Landscape/herbe.jpg";
+        img.src = "./Resources/Landscape/herbe.jpg";
     });
 })();
->>>>>>> origin/master
