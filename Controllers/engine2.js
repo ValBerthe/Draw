@@ -50,8 +50,8 @@
             jointDefinition.bodyB = mouseElement.body;
             jointDefinition.target = {x: currentMousePos.meterX, y: currentMousePos.meterY};
             jointDefinition.maxForce = 100000;
-            jointDefinition.collideConnected = true;
-            jointDefinition.dampingRation = 0;
+            jointDefinition.collideConnected = false;
+            jointDefinition.dampingRatio = 0;
             currentMouseJoint = physics.world.CreateJoint(jointDefinition);
         };
     });
@@ -150,7 +150,7 @@
             };
             this.fixtureDefaults = {
                 density: 2,
-                friction: 1,
+                friction: 0,
                 restitution: 0.2
             };
             this.definitionDefaults = {
@@ -314,8 +314,7 @@
                 world.QueryPoint(function (fixture) {
                     obj = fixture.GetBody().GetUserData();
                 }, point);
-                if (obj)
-                    obj.body.SetType("static");
+                obj.body.SetType("dynamic");
             });
 
             element.addEventListener("mousemove", function (e) {       // Lorsqu'on bouge la souris, on bouge l'élément
@@ -332,6 +331,7 @@
                     jointDefinition.target.Set(obj.body.GetWorldCenter().x, obj.body.GetWorldCenter().y);
                     jointDefinition.maxForce = 100000;
                     jointDefinition.timeStep = stepAmount;
+                    jointDefinition.collideConnected = true;
                     joint = world.CreateJoint(jointDefinition);
                 }
 
@@ -339,13 +339,15 @@
             });
 
             element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
-                if (obj)
+                if (obj) {
                     obj.body.SetLinearVelocity({x:0,y:0});
-                obj = null;
+                }
                 if (joint) {
                     world.DestroyJoint(joint);
                     joint = null;
                 }
+                obj.body.SetType(0);
+                obj=null;  
             });
         };
 
@@ -425,7 +427,7 @@
         var block3 = new physics.Body({type: "static", color:"blue", shape: "circle", border: "black", x:(0.6*canvasWidth)/physics.scale, y:physics.toPixel(0.8,canvasHeight), radius: (0.05*canvasHeight)/physics.scale});
 
         physics.dragNDrop();
-        // physics.debug();
+        physics.debug();
         requestAnimationFrame(gameLoop);
         img.src = "./Resources/Landscape/herbe.jpg";
     });
