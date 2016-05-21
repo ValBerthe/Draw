@@ -29,8 +29,10 @@
             var toon = new physics.Body({
                 color: "green", 
                 border: "black", 
-                x: physics.toPixel(0.2,canvasWidth), 
-                y: physics.toPixel(0.5,canvasHeight), 
+                shape: "circle",
+                radius: physics.toPixel(0.01,canvasWidth),
+                x: physics.toPixel(0.2,canvasWidth),
+                y: physics.toPixel(0.2, canvasHeight),
                 vx: 10
             });
         };
@@ -43,15 +45,14 @@
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
                 height: 1, 
-                width: 3,
+                width: 6,
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
             jointDefinition.bodyB = mouseElement.body;
-            jointDefinition.target = {x: currentMousePos.meterX, y: currentMousePos.meterY};
+            jointDefinition.target.Set(mouseElement.body.GetWorldCenter().x, mouseElement.body.GetWorldCenter().y);
             jointDefinition.maxForce = 100000;
-            jointDefinition.collideConnected = false;
-            jointDefinition.dampingRatio = 0;
+            jointDefinition.collideConnected = true;
             currentMouseJoint = physics.world.CreateJoint(jointDefinition);
         };
     });
@@ -151,7 +152,8 @@
             this.fixtureDefaults = {
                 density: 2,
                 friction: 0,
-                restitution: 0.2
+                restitution: 0.2,
+                sensor: "no"
             };
             this.definitionDefaults = {
                 active: true,
@@ -213,6 +215,13 @@
                     this.details.height / 2);
                     break;
             }
+
+            //this.details.sensor = this.details.sensor || this.fixtureDefaults.sensor;
+            //if (this.details.sensor = "yes") {
+              //  this.fixtureDef.isSensor = true;
+            //} else {
+             //   this.fixtureDef.isSensor = false;
+            //}
 
             this.body.CreateFixture(this.fixtureDef);
 
@@ -424,11 +433,17 @@
 
         var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
         var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
-        var block3 = new physics.Body({type: "static", color:"blue", shape: "circle", border: "black", x:(0.6*canvasWidth)/physics.scale, y:physics.toPixel(0.8,canvasHeight), radius: (0.05*canvasHeight)/physics.scale});
+        var block3 = new physics.Body({type: "static", color:"blue", shape: "circle", border: "black", x:physics.toPixel(0.2,canvasWidth), y:physics.toPixel(0.2,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
 
         physics.dragNDrop();
         physics.debug();
         requestAnimationFrame(gameLoop);
         img.src = "./Resources/Landscape/herbe.jpg";
+
+        //return {
+            //block1: block1,
+            //block2: block2,
+            //block3: block3
+                    //}
     });
 })();
