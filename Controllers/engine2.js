@@ -16,6 +16,7 @@
             });
         };
         this.addRedRectangle = function() {
+<<<<<<< HEAD
                 var rec = new physics.Body({
                     type: "static",
                     color:"red", 
@@ -26,6 +27,16 @@
                     width:physics.toPixel(0.3,canvasWidth)
                 })
 
+=======
+            var rectangle = new physics.Body({
+                color:"red", 
+                border:"black", 
+                x:(Math.random()*canvasWidth)/physics.scale, 
+                y:Math.random()*(canvasHeight/2)/physics.scale, 
+                height: 0.5 + Math.random(), 
+                width: 0.5 + Math.random()
+            });
+>>>>>>> origin/master
         };
         this.addToon = function() {
             var toon = new physics.Body({
@@ -39,8 +50,27 @@
                 friction: 0
             });
         };
+        this.mousePlacing = function() {
+            // We create a new grey rectangle and bind it to the mouse to be placed with another click on the canvas
+            // See the callbacks defined at the end
+            var mouseElement = new physics.Body({
+                color: "grey", 
+                border: "black", 
+                x: currentMousePos.meterX, 
+                y: currentMousePos.meterY, 
+                height: 1, 
+                width: 3,
+            });
+            var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
+            jointDefinition.bodyA = physics.world.GetGroundBody();
+            jointDefinition.bodyB = mouseElement.body;
+            jointDefinition.target = {x: currentMousePos.meterX, y: currentMousePos.meterY};
+            jointDefinition.maxForce = 100000;
+            jointDefinition.collideConnected = true;
+            jointDefinition.dampingRation = 0;
+            currentMouseJoint = physics.world.CreateJoint(jointDefinition);
+        };
     });
-
 
 
     // Global variables
@@ -48,7 +78,15 @@
     var canvas;
     var canvasWidth;
     var canvasHeight;
+    var canvasOffset;
     var img = new Image();
+    var currentMousePos = { 
+        pixelX: -1, 
+        pixelY: -1,
+        meterX: -1,
+        meterY: -1,
+    };
+    var currentMouseJoint = null;
 
 
     // **** Module physics : pour gérer box2d ****
@@ -376,6 +414,24 @@
         lastFrame = tm;
     };
 
+    // Everytime the mouse moves anywhere on the window, we get its position
+    $(document).mousemove(function(event) {
+        currentMousePos.pixelX = event.pageX;
+        currentMousePos.pixelY = event.pageY;
+        currentMousePos.meterX = (currentMousePos.pixelX - canvasOffset.left) / physics.scale;
+        currentMousePos.meterY = (currentMousePos.pixelY - canvasOffset.top) / physics.scale;
+        if (currentMouseJoint)
+            currentMouseJoint.SetTarget({x: currentMousePos.meterX, y: currentMousePos.meterY});
+    });
+
+    // If we click on the canvas with a joint element, it drops it
+    $('#canvas').click(function(event) {
+        if(currentMouseJoint) {
+            physics.world.DestroyJoint(currentMouseJoint);
+            currentMouseJoint = null;
+        }
+    });
+
     // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
     $(document).ready(function() {
         canvas = $('#canvas');
@@ -384,6 +440,7 @@
         canvas.get(0).height = canvas.parent().height();
         canvasWidth = canvas.width();
         canvasHeight = canvas.height();
+        canvasOffset = canvas.offset();
 
         //var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
         //var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
