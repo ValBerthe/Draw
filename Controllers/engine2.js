@@ -40,11 +40,18 @@
                 color: "green", 
                 border: "black", 
                 shape: "circle",
+<<<<<<< HEAD
                 x: physics.toPixel(0.2,canvasWidth), 
                 y: physics.toPixel(0.2,canvasHeight), 
                 radius: physics.toPixel(0.02, canvasWidth),
                 vx: physics.toPixel(0.5,canvasWidth),
                 friction: 0
+=======
+                radius: physics.toPixel(0.01,canvasWidth),
+                x: physics.toPixel(0.2,canvasWidth),
+                y: physics.toPixel(0.2, canvasHeight),
+                vx: 10
+>>>>>>> refs/remotes/origin/Valentin
             });
         };
         this.mousePlacing = function() {
@@ -56,15 +63,14 @@
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
                 height: 1, 
-                width: 3,
+                width: 6,
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
             jointDefinition.bodyB = mouseElement.body;
-            jointDefinition.target = {x: currentMousePos.meterX, y: currentMousePos.meterY};
+            jointDefinition.target.Set(mouseElement.body.GetWorldCenter().x, mouseElement.body.GetWorldCenter().y);
             jointDefinition.maxForce = 100000;
             jointDefinition.collideConnected = true;
-            jointDefinition.dampingRation = 0;
             currentMouseJoint = physics.world.CreateJoint(jointDefinition);
         };
     });
@@ -164,7 +170,12 @@
             this.fixtureDefaults = {
                 density: 2,
                 friction: 0,
+<<<<<<< HEAD
                 restitution: 0.2
+=======
+                restitution: 0.2,
+                sensor: "no"
+>>>>>>> refs/remotes/origin/Valentin
             };
             this.definitionDefaults = {
                 active: true,
@@ -226,6 +237,13 @@
                     this.details.height / 2);
                     break;
             }
+
+            //this.details.sensor = this.details.sensor || this.fixtureDefaults.sensor;
+            //if (this.details.sensor = "yes") {
+              //  this.fixtureDef.isSensor = true;
+            //} else {
+             //   this.fixtureDef.isSensor = false;
+            //}
 
             this.body.CreateFixture(this.fixtureDef);
 
@@ -327,9 +345,13 @@
                 world.QueryPoint(function (fixture) {
                     obj = fixture.GetBody().GetUserData();
                 }, point);
+<<<<<<< HEAD
                 if (obj) {
                     obj.body.SetType("static");
                 }
+=======
+                obj.body.SetType("dynamic");
+>>>>>>> refs/remotes/origin/Valentin
             });
 
             element.addEventListener("mousemove", function (e) {       // Lorsqu'on bouge la souris, on bouge l'élément
@@ -347,6 +369,7 @@
                     jointDefinition.target.Set(obj.body.GetWorldCenter().x, obj.body.GetWorldCenter().y);
                     jointDefinition.maxForce = 100000;
                     jointDefinition.timeStep = stepAmount;
+                    jointDefinition.collideConnected = true;
                     joint = world.CreateJoint(jointDefinition);
                 }
 
@@ -356,15 +379,24 @@
             element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
                 if (obj) {
                     obj.body.SetLinearVelocity({x:0,y:0});
+<<<<<<< HEAD
                     obj.body.SetType(0);
                     alert(obj.body.GetType());
                 }
                 obj = null;
+=======
+                }
+>>>>>>> refs/remotes/origin/Valentin
                 if (joint) {
                     world.DestroyJoint(joint);
                     joint = null;
                 }
+<<<<<<< HEAD
 
+=======
+                obj.body.SetType(0);
+                obj=null;  
+>>>>>>> refs/remotes/origin/Valentin
             });
         };
 
@@ -439,13 +471,25 @@
         canvasHeight = canvas.height();
         canvasOffset = canvas.offset();
 
+<<<<<<< HEAD
         //var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
         //var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
         
+=======
+        var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
+        var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
+        var block3 = new physics.Body({type: "static", color:"blue", shape: "circle", border: "black", x:physics.toPixel(0.2,canvasWidth), y:physics.toPixel(0.2,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
+>>>>>>> refs/remotes/origin/Valentin
 
         physics.dragNDrop();
-        // physics.debug();
+        physics.debug();
         requestAnimationFrame(gameLoop);
         img.src = "./Resources/Landscape/herbe.jpg";
+
+        //return {
+            //block1: block1,
+            //block2: block2,
+            //block3: block3
+                    //}
     });
 })();
