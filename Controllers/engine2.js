@@ -40,18 +40,15 @@
                 color: "green", 
                 border: "black", 
                 shape: "circle",
-<<<<<<< HEAD
                 x: physics.toPixel(0.2,canvasWidth), 
                 y: physics.toPixel(0.2,canvasHeight), 
                 radius: physics.toPixel(0.02, canvasWidth),
                 vx: physics.toPixel(0.5,canvasWidth),
-                friction: 0
-=======
+                friction: 0,
                 radius: physics.toPixel(0.01,canvasWidth),
                 x: physics.toPixel(0.2,canvasWidth),
                 y: physics.toPixel(0.2, canvasHeight),
                 vx: 10
->>>>>>> refs/remotes/origin/Valentin
             });
         };
         this.mousePlacing = function() {
@@ -170,12 +167,8 @@
             this.fixtureDefaults = {
                 density: 2,
                 friction: 0,
-<<<<<<< HEAD
-                restitution: 0.2
-=======
                 restitution: 0.2,
                 sensor: "no"
->>>>>>> refs/remotes/origin/Valentin
             };
             this.definitionDefaults = {
                 active: true,
@@ -345,13 +338,10 @@
                 world.QueryPoint(function (fixture) {
                     obj = fixture.GetBody().GetUserData();
                 }, point);
-<<<<<<< HEAD
                 if (obj) {
                     obj.body.SetType("static");
                 }
-=======
                 obj.body.SetType("dynamic");
->>>>>>> refs/remotes/origin/Valentin
             });
 
             element.addEventListener("mousemove", function (e) {       // Lorsqu'on bouge la souris, on bouge l'élément
@@ -379,24 +369,17 @@
             element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
                 if (obj) {
                     obj.body.SetLinearVelocity({x:0,y:0});
-<<<<<<< HEAD
                     obj.body.SetType(0);
-                    alert(obj.body.GetType());
+                    //alert(obj.body.GetType());
                 }
-                obj = null;
-=======
-                }
->>>>>>> refs/remotes/origin/Valentin
+                
                 if (joint) {
                     world.DestroyJoint(joint);
                     joint = null;
                 }
-<<<<<<< HEAD
 
-=======
                 obj.body.SetType(0);
                 obj=null;  
->>>>>>> refs/remotes/origin/Valentin
             });
         };
 
@@ -471,15 +454,12 @@
         canvasHeight = canvas.height();
         canvasOffset = canvas.offset();
 
-<<<<<<< HEAD
         //var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
         //var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
         
-=======
         var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
         var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
         var block3 = new physics.Body({type: "static", color:"blue", shape: "circle", border: "black", x:physics.toPixel(0.2,canvasWidth), y:physics.toPixel(0.2,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
->>>>>>> refs/remotes/origin/Valentin
 
         physics.dragNDrop();
         physics.debug();
