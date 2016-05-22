@@ -16,7 +16,6 @@
             });
         };
         this.addRedRectangle = function() {
-<<<<<<< HEAD
                 var rec = new physics.Body({
                     type: "static",
                     color:"red", 
@@ -27,7 +26,6 @@
                     width:physics.toPixel(0.3,canvasWidth)
                 })
 
-=======
             var rectangle = new physics.Body({
                 color:"red", 
                 border:"black", 
@@ -36,7 +34,6 @@
                 height: 0.5 + Math.random(), 
                 width: 0.5 + Math.random()
             });
->>>>>>> origin/master
         };
         this.addToon = function() {
             var toon = new physics.Body({
