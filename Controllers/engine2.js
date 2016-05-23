@@ -36,39 +36,109 @@
             });
         };
         this.addToon = function() {
-            var toon = new physics.Body({
-                color: "green", 
+                toon = new physics.Body({
+                color: "", 
                 border: "black", 
                 shape: "circle",
-                x: physics.toPixel(0.2,canvasWidth), 
-                y: physics.toPixel(0.2,canvasHeight), 
-                radius: physics.toPixel(0.02, canvasWidth),
-                vx: physics.toPixel(0.5,canvasWidth),
+                x: physics.toPixel(0.08,canvasWidth), 
+                y: physics.toPixel(0.08,canvasHeight), 
+                radius: physics.toPixel(0.01, canvasWidth),
+                vx: physics.toPixel(0.3,canvasWidth),
                 friction: 0,
-                radius: physics.toPixel(0.01,canvasWidth),
-                x: physics.toPixel(0.2,canvasWidth),
-                y: physics.toPixel(0.2, canvasHeight),
-                vx: 10
+                
+
             });
         };
-        this.mousePlacing = function() {
-            // We create a new grey rectangle and bind it to the mouse to be placed with another click on the canvas
+        this.horizontal = function() {
+            // We create a new grey horizontal rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
             var mouseElement = new physics.Body({
-                color: "grey", 
-                border: "black", 
+                image: metal,  
+                draggable: true,
+                sensor: true,
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
-                height: 1, 
-                width: 6,
+                height: physics.toPixel(0.03,canvasHeight), 
+                width: physics.toPixel(0.2, canvasWidth)
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
-            jointDefinition.bodyB = mouseElement.body;
-            jointDefinition.target.Set(mouseElement.body.GetWorldCenter().x, mouseElement.body.GetWorldCenter().y);
+            jointDefinition.bodyB = mouseElement.body.solid;
+            jointDefinition.target.Set(mouseElement.body.solid.GetWorldCenter().x, mouseElement.body.solid.GetWorldCenter().y);
             jointDefinition.maxForce = 100000;
+            jointDefinition.timeStep = physics.stepAmount;
             jointDefinition.collideConnected = true;
             currentMouseJoint = physics.world.CreateJoint(jointDefinition);
+            undoLimit += 1;
+        };
+
+        this.vertical = function() {
+            // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
+            // See the callbacks defined at the end
+            var mouseElement = new physics.Body({
+                image: metal, 
+                draggable: true,
+                sensor: true,
+                x: currentMousePos.meterX, 
+                y: currentMousePos.meterY, 
+                height: physics.toPixel(0.2, canvasHeight), 
+                width: physics.toPixel(0.03, canvasWidth)
+            });
+            var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
+            jointDefinition.bodyA = physics.world.GetGroundBody();
+            jointDefinition.bodyB = mouseElement.body.solid;
+            jointDefinition.target.Set(mouseElement.body.solid.GetWorldCenter().x, mouseElement.body.solid.GetWorldCenter().y);
+            jointDefinition.maxForce = 100000;
+            jointDefinition.timeStep = physics.stepAmount;
+            jointDefinition.collideConnected = true;
+            currentMouseJoint = physics.world.CreateJoint(jointDefinition);
+            undoLimit += 1;
+        };
+
+        this.undo = function() {
+            if (undoLimit == 0 || launchEnabled == 1) {
+                return;
+            }
+            physics.world.DestroyBody(physics.world.GetBodyList());
+            undoLimit -= 1;
+        }
+
+
+        this.reset = function() {
+            if (launchEnabled == 1) {
+                this.launch();
+            }
+            while (undoLimit != 0) {
+                this.undo();
+            }
+        }
+
+        this.launch = function() {
+            if (launchEnabled == 0) {
+                launchEnabled = 1;
+                blockCheck = physics.world.GetBodyList();
+                while (blockCheck != null) {
+                    if (blockCheck.GetFixtureList() != null) {
+                        blockCheck.GetFixtureList().SetSensor(false);
+                    }                   
+                    blockCheck = blockCheck.GetNext();
+                };
+                blockCheck = null;
+                start.body.solid.GetFixtureList().SetSensor(true);
+                finish.body.solid.GetFixtureList().SetSensor(true);
+                this.addToon();
+            } else {
+                launchEnabled = 0;
+                physics.world.DestroyBody(physics.world.GetBodyList());
+                blockCheck = physics.world.GetBodyList();
+                while (blockCheck != null) {
+                    if (blockCheck.GetFixtureList() != null) {
+                        blockCheck.GetFixtureList().SetSensor(true);
+                    }                   
+                    blockCheck = blockCheck.GetNext();
+                };
+                blockCheck = null;
+            }
         };
     });
 
@@ -80,6 +150,7 @@
     var canvasHeight;
     var canvasOffset;
     var img = new Image();
+    var metal = new Image();
     var currentMousePos = { 
         pixelX: -1, 
         pixelY: -1,
@@ -87,6 +158,10 @@
         meterY: -1,
     };
     var currentMouseJoint = null;
+    var launchEnabled = 0;
+    var undoLimit = 0;
+    var blockCheck = null;
+
 
 
     // **** Module physics : pour gérer box2d ****
@@ -167,8 +242,8 @@
             this.fixtureDefaults = {
                 density: 2,
                 friction: 0,
-                restitution: 0.2,
-                sensor: "no"
+                restitution: 0.5,
+                sensor: false
             };
             this.definitionDefaults = {
                 active: true,
@@ -177,7 +252,8 @@
                 angularVelocity: 0,
                 awake: true,
                 bullet: false,
-                fixedRotation: false
+                fixedRotation: false,
+                draggable: false
             };
             this.details = detailsToSet || {};
             if (this.details.x === "center")
@@ -200,7 +276,10 @@
             this.definition.type = this.details.type == "static" ? b2Body.b2_staticBody : b2Body.b2_dynamicBody;
 
             // Création des éléments
-            this.body = physics.world.CreateBody(this.definition);
+            this.body = {
+                solid: physics.world.CreateBody(this.definition),
+                draggable: this.details.draggable || this.definitionDefaults.draggable
+            };
 
             // Création des fixtures
             this.fixtureDef = new b2FixtureDef();
@@ -231,20 +310,23 @@
                     break;
             }
 
-            //this.details.sensor = this.details.sensor || this.fixtureDefaults.sensor;
-            //if (this.details.sensor = "yes") {
-              //  this.fixtureDef.isSensor = true;
-            //} else {
-             //   this.fixtureDef.isSensor = false;
-            //}
 
-            this.body.CreateFixture(this.fixtureDef);
+            this.details.sensor = this.details.sensor || this.fixtureDefaults.sensor;
+            if (this.details.sensor == true) {
+                this.fixtureDef.isSensor = true;
+            } else {
+                this.fixtureDef.isSensor = false;
+            }
+
+            this.details.draggable = this.details.draggable || this.definitionDefaults.draggable;
+
+            this.body.solid.CreateFixture(this.fixtureDef);
 
 
             // Gestion de l'apparence en jeu (utilisation du contexte du canvas)
             this.draw = function(context) {
-                var pos = this.body.GetPosition();
-                var angle = this.body.GetAngle();
+                var pos = this.body.solid.GetPosition();
+                var angle = this.body.solid.GetAngle();
                 var points;
                 var i;
 
@@ -282,9 +364,7 @@
                 }
 
                 if (this.details.image) { // Remplit à l'aide d'une image si on le désire
-                    context.drawImage(this.details.image, -this.details.width / 2, -this.details.height / 2,
-                    this.details.width,
-                    this.details.height);
+                    context.drawImage(this.details.image, 10, 10, this.details.width*40, this.details.height*40, -this.details.width / 2, -this.details.height / 2, this.details.width, this.details.height);
 
                 }
 
@@ -324,7 +404,6 @@
         var dragNDrop = function () {
             var obj = null;
             var joint = null;
-
             function calculateWorldPosition(e) {    // On calcule la position de l'élément, converti en mètres
                 return {
                     x: (e.offsetX || e.layerX) / scale,
@@ -334,29 +413,36 @@
 
             element.addEventListener("mousedown", function (e) {       // On chope l'élément en question avec QueryPoint (déjà utilisé lors du Physics.click)
                 e.preventDefault();
+                if (launchEnabled == 1) {
+                    return;
+                }
+
                 var point = calculateWorldPosition(e);
                 world.QueryPoint(function (fixture) {
                     obj = fixture.GetBody().GetUserData();
                 }, point);
                 if (obj) {
-                    obj.body.SetType("static");
+                    if (obj.body.draggable == false) {
+                        obj = null;
+                    } else {
+                        obj.body.solid.SetType(2);
+                    }
                 }
-                obj.body.SetType("dynamic");
+
             });
 
             element.addEventListener("mousemove", function (e) {       // Lorsqu'on bouge la souris, on bouge l'élément
                 if (!obj) {
                     return;
                 }
-                obj.body.SetType("static");
                 var point = calculateWorldPosition(e);
 
                 if (!joint) {
                     var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
 
                     jointDefinition.bodyA = world.GetGroundBody();
-                    jointDefinition.bodyB = obj.body;
-                    jointDefinition.target.Set(obj.body.GetWorldCenter().x, obj.body.GetWorldCenter().y);
+                    jointDefinition.bodyB = obj.body.solid;
+                    jointDefinition.target.Set(obj.body.solid.GetWorldCenter().x, obj.body.solid.GetWorldCenter().y);
                     jointDefinition.maxForce = 100000;
                     jointDefinition.timeStep = stepAmount;
                     jointDefinition.collideConnected = true;
@@ -368,9 +454,9 @@
 
             element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
                 if (obj) {
-                    obj.body.SetLinearVelocity({x:0,y:0});
-                    obj.body.SetType(0);
-                    //alert(obj.body.GetType());
+                    obj.body.solid.SetLinearVelocity({x:0,y:0});
+                    obj.body.solid.SetType(0);
+                    //alert(obj.body.solid.GetType());
                 }
                 
                 if (joint) {
@@ -378,7 +464,7 @@
                     joint = null;
                 }
 
-                obj.body.SetType(0);
+                //obj.body.solid.SetType(0);
                 obj=null;  
             });
         };
@@ -445,31 +531,28 @@
     });
 
     // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
-    $(document).ready(function() {
-        canvas = $('#canvas');
-        // we set the canvas' height and width here so that the physics world size scales with the size of the canvas' container
-        canvas.get(0).width = canvas.parent().width();
-        canvas.get(0).height = canvas.parent().height();
-        canvasWidth = canvas.width();
-        canvasHeight = canvas.height();
-        canvasOffset = canvas.offset();
 
-        //var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
-        //var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
-        
-        var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
-        var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
-        var block3 = new physics.Body({type: "static", color:"blue", shape: "circle", border: "black", x:physics.toPixel(0.2,canvasWidth), y:physics.toPixel(0.2,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
+    canvas = $('#canvas');
+    // we set the canvas' height and width here so that the physics world size scales with the size of the canvas' container
+    canvas.get(0).width = canvas.parent().width()*0.99;
+    canvas.get(0).height = canvas.parent().height()*0.99;
+    canvasWidth = canvas.width();
+    canvasHeight = canvas.height();
+    canvasOffset = canvas.offset();
 
-        physics.dragNDrop();
-        physics.debug();
-        requestAnimationFrame(gameLoop);
-        img.src = "./Resources/Landscape/herbe.jpg";
+    //var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
+    //var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
+    
+    var block1 = new physics.Body({type: "static", image: img, x:physics.toPixel(0.7, canvasWidth), sensor: true, y:physics.toPixel(0.35,canvasHeight), height: physics.toPixel(0.6, canvasHeight), width: physics.toPixel(0.05, canvasWidth)});
+    var block2 = new physics.Body({type: "static", image: img, x:"center", sensor: true, y: "center", height: physics.toPixel(0.1, canvasHeight), width: physics.toPixel(0.3, canvasWidth)});
+    var start = new physics.Body({type: "static", color:"#a00000", shape: "circle", sensor: true, x:physics.toPixel(0.08,canvasWidth), y:physics.toPixel(0.08,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
+    var finish = new physics.Body({type: "static", color:"#289e00", shape: "circle", sensor: true, x:physics.toPixel(0.92,canvasWidth), y:physics.toPixel(0.92,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
+    physics.dragNDrop();
+    //physics.debug();
+    requestAnimationFrame(gameLoop);
+    img.src = "./Resources/Landscape/bricks.jpg";
+    metal.src = "./Resources/Landscape/metal.jpg"
+    
 
-        //return {
-            //block1: block1,
-            //block2: block2,
-            //block3: block3
-                    //}
-    });
+    
 })();
