@@ -1,31 +1,52 @@
 <!DOCTYPE html>
 <html ng-app="runningBob">
-    <head>
-        <link rel="stylesheet" href="./Styles/bootstrap.css">
-        <link rel="stylesheet" type="text/css" href="./Styles/style.css">
-    </head>
+	<head>
+		<link rel="stylesheet" href="./css/bootstrap.css">
+		<link rel="stylesheet" type="text/css" href="./Styles/style.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</head>
 
 
-    <body>
-        <div id="gameDiv" class="container" ng-controller="GameController as game" >
-            <div class="row">
-                <div id="buttonsDiv" class="col-lg-2">
-                    <button type="button" class="btn btn-default" ng-click="game.horizontal()">Horizontal Platform</button>
-                    <button type="button" class="btn btn-default" ng-click="game.vertical()">Vertical Platform</button>
-                    <button type="button" class="btn btn-default" ng-click="game.undo()">Undo</button>
-                    <button type="button" class="btn btn-default" ng-click="game.reset()">Reset</button>
-                    <button type="button" class="btn btn-default" ng-click="game.launch()">Launch !</button>
-                </div>
-                <div id="canvasDiv" class="col-lg-10">
-                    <canvas id="canvas"></canvas>
-                </div>
-            </div>
-        </div>
+	<body>
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					  </button>
+					<span class="navbar-brand">Platti Formis</span>
+				</div>
+        <div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li class="active"><a href="#">The Game</a></li>
+						<li><a href="#">Help</a></li>
+						<li><a href="#">Contact</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div id="gameDiv" class="container fill" ng-controller="GameController as game" >
+			<div class="row">
+				<div id="buttonsDiv" class="col-lg-2">
+					<button type="button" class="btn btn-default btn-block" ng-click="game.horizontal()">Horizontal Platform</button>
+					<button type="button" class="btn btn-default btn-block" ng-click="game.vertical()">Vertical Platform</button>
+					<button type="button" class="btn btn-default btn-block" ng-click="game.undo()">Undo</button>
+					<button type="button" class="btn btn-default btn-block" ng-click="game.reset()">Reset</button>
+					<button type="button" class="btn btn-default btn-block btn-success" ng-click="game.launch()">Launch !</button>
+				</div>
+				<div id="canvasDiv" class="col-lg-10">
+					<canvas id="canvas"></canvas>
+				</div>
+			</div>
+		</div>
 
-        <script type="text/javascript" src="./Controllers/angular.min.js"></script>        
-        <script type="text/javascript" src="./Controllers/jquery.js"></script>
-        <script type="text/javascript" src="./Controllers/Box2D.js"></script>
-        <!-- <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script> -->
-        <script type="text/javascript" src="./Controllers/engine2.js"></script>
-    </body>
+		<script type="text/javascript" src="./Controllers/angular.min.js"></script>        
+		<script type="text/javascript" src="./Controllers/jquery.js"></script>
+		<script type="text/javascript" src="./Controllers/Box2D.js"></script>
+		<!-- <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script> -->
+		<script type="text/javascript" src="./Controllers/engine2.js"></script>
+	</body>
 </html>
