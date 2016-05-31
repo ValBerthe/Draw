@@ -68,8 +68,8 @@
                 sensor: true,
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
-                height: physics.toPixel(0.03,canvasHeight), 
-                width: physics.toPixel(0.2, canvasWidth)
+                height: 3, 
+                width: 20
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
@@ -92,8 +92,8 @@
                 sensor: true,
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
-                height: physics.toPixel(0.2, canvasHeight), 
-                width: physics.toPixel(0.03, canvasWidth)
+                height: 20, 
+                width: 3
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
