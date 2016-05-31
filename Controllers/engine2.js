@@ -53,7 +53,8 @@
             // We create a new grey horizontal rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
             var mouseElement = new physics.Body({
-                image: metal,  
+                // image: metal,  
+                color: "blue",
                 draggable: true,
                 sensor: true,
                 x: currentMousePos.meterX, 
@@ -76,7 +77,8 @@
             // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
             var mouseElement = new physics.Body({
-                image: metal, 
+                // image: metal, 
+                color: "blue",
                 draggable: true,
                 sensor: true,
                 x: currentMousePos.meterX, 
@@ -155,8 +157,8 @@
     var canvasWidth;
     var canvasHeight;
     var canvasOffset;
-    var img = new Image();
-    var metal = new Image();
+    // var img = new Image();
+    // var metal = new Image();
     var currentMousePos = { 
         pixelX: -1, 
         pixelY: -1,
@@ -167,6 +169,14 @@
     var launchEnabled = 0;
     var undoLimit = 0;
     var blockCheck = null;
+
+    var pastelColors = {
+        red: "#DB3340",
+        yellow: "#E8B71A",
+        pink: "#F7EAC8",
+        green: "#1FDA9A",
+        blue: "#28ABE3",
+    };
 
 
 
@@ -342,7 +352,7 @@
                 context.rotate(angle);
 
                 if (this.details.color) {      // Dessine la forme, si on désire mettre une couleur
-                    context.fillStyle = this.details.color;
+                    context.fillStyle = pastelColors[this.details.color];
 
                     switch (this.details.shape) {
                         case "circle":
@@ -370,8 +380,9 @@
                 }
 
                 if (this.details.image) { // Remplit à l'aide d'une image si on le désire
-                    context.drawImage(this.details.image, 10, 10, this.details.width*40, this.details.height*40, -this.details.width / 2, -this.details.height / 2, this.details.width, this.details.height);
-
+                    context.drawImage(this.details.image, 10, 10, this.details.width*40, 
+                        this.details.height*40, -this.details.width / 2, -this.details.height / 2, 
+                        this.details.width, this.details.height);
                 }
 
                 if (this.details.border) {
@@ -530,8 +541,8 @@
     // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
     canvas = $('#canvas');
     // we set the canvas' height and width here so that the physics world size scales with the size of the canvas' container
-    canvas.get(0).width = canvas.parent().width()*0.99;
-    canvas.get(0).height = canvas.parent().height()*0.99;
+    canvas.get(0).width = canvas.parent().width();
+    canvas.get(0).height = canvas.parent().height();
     canvasWidth = canvas.width();
     canvasHeight = canvas.height();
     canvasOffset = canvas.offset();
@@ -539,15 +550,15 @@
     //var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
     //var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
     
-    var block1 = new physics.Body({type: "static", image: img, x:physics.toPixel(0.7, canvasWidth), sensor: true, y:physics.toPixel(0.35,canvasHeight), height: physics.toPixel(0.6, canvasHeight), width: physics.toPixel(0.05, canvasWidth)});
-    var block2 = new physics.Body({type: "static", image: img, x:"center", sensor: true, y: "center", height: physics.toPixel(0.1, canvasHeight), width: physics.toPixel(0.3, canvasWidth)});
-    var start = new physics.Body({type: "static", color:"#a00000", shape: "circle", sensor: true, x:physics.toPixel(0.08,canvasWidth), y:physics.toPixel(0.08,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
-    var finish = new physics.Body({type: "static", color:"#289e00", shape: "circle", sensor: true, x:physics.toPixel(0.92,canvasWidth), y:physics.toPixel(0.92,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
+    var block1 = new physics.Body({type: "static", color: "yellow", x:physics.toPixel(0.7, canvasWidth), sensor: true, y:physics.toPixel(0.35,canvasHeight), height: physics.toPixel(0.6, canvasHeight), width: physics.toPixel(0.05, canvasWidth)});
+    var block2 = new physics.Body({type: "static", color: "yellow", x:"center", sensor: true, y: "center", height: physics.toPixel(0.1, canvasHeight), width: physics.toPixel(0.3, canvasWidth)});
+    var start = new physics.Body({type: "static", color:"green", shape: "circle", sensor: true, x:physics.toPixel(0.08,canvasWidth), y:physics.toPixel(0.08,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
+    var finish = new physics.Body({type: "static", color:"red", shape: "circle", sensor: true, x:physics.toPixel(0.92,canvasWidth), y:physics.toPixel(0.92,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
     physics.dragNDrop();
     //physics.debug();
     requestAnimationFrame(gameLoop);
-    img.src = "./Resources/Landscape/bricks.jpg";
-    metal.src = "./Resources/Landscape/metal.jpg";
+        // img.src = "./Resources/Landscape/bricks.jpg";
+        // metal.src = "./Resources/Landscape/metal.jpg";
 })();
 
 
