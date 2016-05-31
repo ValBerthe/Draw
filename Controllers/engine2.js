@@ -62,6 +62,7 @@
             // We create a new grey horizontal rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
             var mouseElement = new physics.Body({
+                type: "dynamic",
                 color: "blue",
                 draggable: true,
                 sensor: true,
@@ -85,6 +86,7 @@
             // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
             var mouseElement = new physics.Body({
+                type: "dynamic",
                 color: "blue",
                 draggable: true,
                 sensor: true,
