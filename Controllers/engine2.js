@@ -298,8 +298,8 @@
             for (var k in this.definitionDefaults) {
                 this.definition[k] = this.details[k] || this.definitionDefaults[k];
             }
-            this.definition.position = new b2Vec2(this.details.x || 0, this.details.y || 0);
-            this.definition.linearVelocity = new b2Vec2(this.details.vx || 0, this.details.vy || 0);
+            this.definition.position = new b2Vec2(toPixel(this.details.x, canvasWidth) || 0, toPixel(this.details.y, canvasHeight) || 0);
+            this.definition.linearVelocity = new b2Vec2(toPixel(this.details.vx, canvasWidth) || 0, toPixel(this.details.vy, canvasHeight) || 0);
             this.definition.userData = this;
             this.definition.type = this.details.type == "dynamic" ? b2Body.b2_dynamicBody : b2Body.b2_staticBody;
 
@@ -321,7 +321,7 @@
             switch (this.details.shape) {
                 case "circle":
                     this.details.radius = this.details.radius || this.elementDefaults.radius;
-                    this.fixtureDef.shape = new b2CircleShape(this.details.radius);
+                    this.fixtureDef.shape = new b2CircleShape(toPixel(this.details.radius, canvasWidth));
                     break;
                 case "polygon":
                     this.fixtureDef.shape = new b2PolygonShape();
@@ -333,8 +333,8 @@
                     this.details.height = this.details.height || this.elementDefaults.height;
 
                     this.fixtureDef.shape = new b2PolygonShape();
-                    this.fixtureDef.shape.SetAsBox(this.details.width / 2,
-                    this.details.height / 2);
+                    this.fixtureDef.shape.SetAsBox(toPixel(this.details.width, canvasWidth) / 2,
+                    toPixel(this.details.height, canvasHeight) / 2);
                     break;
             }
 
@@ -369,7 +369,7 @@
                     switch (this.details.shape) {
                         case "circle":
                             context.beginPath();
-                            context.arc(0, 0, this.details.radius, 0, Math.PI * 2);
+                            context.arc(0, 0, toPixel(this.details.radius, canvasWidth), 0, Math.PI * 2);
                             context.fill();
                             break;
                         case "polygon":
@@ -382,9 +382,9 @@
                             context.fill();
                             break;
                         case "block":
-                            context.fillRect(-this.details.width / 2, -this.details.height / 2,
-                            this.details.width,
-                            this.details.height);
+                            context.fillRect(-toPixel(this.details.width, canvasWidth) / 2, -toPixel(this.details.height, canvasHeight) / 2,
+                            toPixel(this.details.width, canvasWidth),
+                            toPixel(this.details.height, canvasHeight));
                             break;
                         default:
                             break;
@@ -403,7 +403,7 @@
                     switch (this.details.shape) {
                         case "circle":
                             context.beginPath();
-                            context.arc(0, 0, this.details.radius, 0, Math.PI * 2);
+                            context.arc(0, 0, toPixel(this.details.radius, canvasWidth), 0, Math.PI * 2);
                             context.stroke();
                             break;
                         case "polygon":
@@ -416,9 +416,9 @@
                             context.stroke();
                             break;
                         case "block":
-                            context.strokeRect(-this.details.width / 2, -this.details.height / 2,
-                            this.details.width,
-                            this.details.height);
+                            context.strokeRect(-toPixel(this.details.width, canvasWidth) / 2, -toPixel(this.details.height, canvasHeight) / 2,
+                            toPixel(this.details.width, canvasWidth),
+                            toPixel(this.details.height, canvasHeight));
                             break;
                         default:
                             break;
@@ -498,7 +498,7 @@
         };
 
         var toPixel = function(pos, hw) {
-            return (pos*hw)/scale;
+            return (pos/100*hw)/scale;
         };
 
         // We return all the variables and function that we want to make accessible from outside the module !
@@ -578,29 +578,23 @@
     canvasHeight = canvas.height();
     canvasOffset = canvas.offset();
 
-    // Taille en mètres du canvas sur mon écran: 40 x 12 mètres
     levels[0] = {
         num: 1,
         blocks: [
-            {color: "yellow", x:physics.toPixel(0.7, canvasWidth), sensor: true, y:physics.toPixel(0.35,canvasHeight), 
-                height: physics.toPixel(0.6, canvasHeight), width: physics.toPixel(0.05, canvasWidth)},
-            {color: "yellow", x:"center", sensor: true, y: "center", 
-                height: physics.toPixel(0.1, canvasHeight), width: physics.toPixel(0.3, canvasWidth)}
+            {color: "yellow", sensor: true, x:70, y:35, height: 60, width: 5},
+            {color: "yellow", sensor: true, x:50, y:50, height: 10, width: 30}
         ],
-        start: {color:"green", shape: "circle", sensor: true, x:physics.toPixel(0.08,canvasWidth), 
-            y:physics.toPixel(0.08,canvasHeight), radius: physics.toPixel(0.01, canvasWidth), vx: 15},
-        finish: {color:"red", shape: "circle", sensor: true, x:physics.toPixel(0.92,canvasWidth), 
-            y:physics.toPixel(0.92,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)}
+        start: {color:"green", shape: "circle", sensor: true, x:8, y:8, radius: 1, vx: 50},
+        finish: {color:"red", shape: "circle", sensor: true, x:92, y:92, radius: 1}
     };
-
     levels[1] = {
         num: 2,
         blocks: [
-            {color: "yellow", x:37, y:2, height:1, width:1},
-            {color: "yellow", x:17, y:8, height:1, width:15},
+            {color: "yellow", x:50, y:50, height:5, width:30},
+            {color: "yellow", x:50, y:30, height:5, width:30},
         ],
-        start: {color:"green", shape: "circle", sensor: true, x:6, y:10, radius:0.4, vy: -14, vx: 2},
-        finish: {color:"red", shape: "circle", sensor: true, x:36, y:10, radius:0.4}
+        start: {color:"green", shape: "circle", sensor: true, x:10, y:90, radius:1, vy: -90, vx: 15},
+        finish: {color:"red", shape: "circle", sensor: true, x:90, y:90, radius:1}
     };
 
     var levelPage = $.urlParam("level");
