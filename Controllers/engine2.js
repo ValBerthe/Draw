@@ -24,7 +24,7 @@
                     y:physics.toPixel(0.8,canvasHeight), 
                     height:physics.toPixel(0.05,canvasHeight), 
                     width:physics.toPixel(0.3,canvasWidth)
-                })
+                });
 
             var rectangle = new physics.Body({
                 color:"red", 
@@ -96,47 +96,53 @@
         };
 
         this.undo = function() {
-            if (undoLimit == 0 || launchEnabled == 1) {
+            if (undoLimit === 0 || launchEnabled == 1) {
                 return;
             }
             physics.world.DestroyBody(physics.world.GetBodyList());
             undoLimit -= 1;
-        }
+        };
 
 
         this.reset = function() {
             if (launchEnabled == 1) {
                 this.launch();
             }
-            while (undoLimit != 0) {
+            while (undoLimit !== 0) {
                 this.undo();
             }
-        }
+        };
 
         this.launch = function() {
-            if (launchEnabled == 0) {
+            if (launchEnabled === 0) {
                 launchEnabled = 1;
+                $('#launchButton').addClass('btn-danger');
+                $('#launchButton').text('stop !');
+                $('.launch-disabled').attr('disabled', true);
                 blockCheck = physics.world.GetBodyList();
-                while (blockCheck != null) {
-                    if (blockCheck.GetFixtureList() != null) {
+                while (blockCheck !== null) {
+                    if (blockCheck.GetFixtureList() !== null) {
                         blockCheck.GetFixtureList().SetSensor(false);
                     }                   
                     blockCheck = blockCheck.GetNext();
-                };
+                }
                 blockCheck = null;
                 start.body.solid.GetFixtureList().SetSensor(true);
                 finish.body.solid.GetFixtureList().SetSensor(true);
                 this.addToon();
             } else {
                 launchEnabled = 0;
+                $('#launchButton').removeClass('btn-danger');
+                $('#launchButton').text('launch !');
+                $('.launch-disabled').attr('disabled', false);
                 physics.world.DestroyBody(physics.world.GetBodyList());
                 blockCheck = physics.world.GetBodyList();
-                while (blockCheck != null) {
-                    if (blockCheck.GetFixtureList() != null) {
+                while (blockCheck !== null) {
+                    if (blockCheck.GetFixtureList() !== null) {
                         blockCheck.GetFixtureList().SetSensor(true);
                     }                   
                     blockCheck = blockCheck.GetNext();
-                };
+                }
                 blockCheck = null;
             }
         };
@@ -312,7 +318,7 @@
 
 
             this.details.sensor = this.details.sensor || this.fixtureDefaults.sensor;
-            if (this.details.sensor == true) {
+            if (this.details.sensor === true) {
                 this.fixtureDef.isSensor = true;
             } else {
                 this.fixtureDef.isSensor = false;
@@ -422,13 +428,12 @@
                     obj = fixture.GetBody().GetUserData();
                 }, point);
                 if (obj) {
-                    if (obj.body.draggable == false) {
+                    if (obj.body.draggable === false) {
                         obj = null;
                     } else {
                         obj.body.solid.SetType(2);
                     }
                 }
-
             });
 
             element.addEventListener("mousemove", function (e) {       // Lorsqu'on bouge la souris, on bouge l'élément
@@ -522,16 +527,7 @@
             currentMouseJoint.SetTarget({x: currentMousePos.meterX, y: currentMousePos.meterY});
     });
 
-    // If we click on the canvas with a joint element, it drops it
-    $('#canvas').click(function(event) {
-        if(currentMouseJoint) {
-            physics.world.DestroyJoint(currentMouseJoint);
-            currentMouseJoint = null;
-        }
-    });
-
     // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
-
     canvas = $('#canvas');
     // we set the canvas' height and width here so that the physics world size scales with the size of the canvas' container
     canvas.get(0).width = canvas.parent().width()*0.99;
@@ -551,8 +547,8 @@
     //physics.debug();
     requestAnimationFrame(gameLoop);
     img.src = "./Resources/Landscape/bricks.jpg";
-    metal.src = "./Resources/Landscape/metal.jpg"
-    
-
-    
+    metal.src = "./Resources/Landscape/metal.jpg";
 })();
+
+
+// TODO: destroy element if not yet placed and another element is created by button
