@@ -4,6 +4,15 @@
 
     var app = angular.module('runningBob', []); // main angularJS variable
 
+    app.controller('NavbarController', function(){
+        this.isSelected = function(checkLevel) {
+            return level.num === checkLevel;
+        };
+        this.selectLevel = function(levelToLoad) {
+            loadLevel(levelToLoad);
+        };
+    });
+
     app.controller('GameController', function(){
         this.addGreenBall = function() {
             var ball = new physics.Body({
@@ -35,25 +44,24 @@
                 width: 0.5 + Math.random()
             });
         };
-        this.addToon = function() {
+        this.addToon = function(start) {
                 toon = new physics.Body({
+                type: "dynamic",
                 color: "pink", 
                 border: "black", 
                 shape: "circle",
-                x: physics.toPixel(0.08,canvasWidth), 
-                y: physics.toPixel(0.08,canvasHeight), 
-                radius: physics.toPixel(0.01, canvasWidth),
-                vx: physics.toPixel(0.3,canvasWidth),
+                x: start.x, 
+                y: start.y, 
+                radius: start.radius,
+                vx: start.vx,
+                vy: start.vy,
                 friction: 0,
-                
-
             });
         };
         this.horizontal = function() {
             // We create a new grey horizontal rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
             var mouseElement = new physics.Body({
-                // image: metal,  
                 color: "blue",
                 draggable: true,
                 sensor: true,
@@ -77,7 +85,6 @@
             // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
             var mouseElement = new physics.Body({
-                // image: metal, 
                 color: "blue",
                 draggable: true,
                 sensor: true,
@@ -131,7 +138,7 @@
                 blockCheck = null;
                 start.body.solid.GetFixtureList().SetSensor(true);
                 finish.body.solid.GetFixtureList().SetSensor(true);
-                this.addToon();
+                this.addToon(level.start);
             } else {
                 launchEnabled = 0;
                 $('#launchButton').removeClass('btn-danger');
@@ -169,6 +176,10 @@
     var launchEnabled = 0;
     var undoLimit = 0;
     var blockCheck = null;
+    var start = null;
+    var finish = null;
+    var level = null;
+    var levels = [];
 
     var pastelColors = {
         red: "#DB3340",
@@ -196,7 +207,6 @@
         var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
         // Création du monde
-        // TODO ? We could put a '_' at the begining of private variables
         var gravity = new b2Vec2(0,9.8); // définition du vecteur gravité
         var world = new b2World(gravity, true); // création du monde
         var element = $('#canvas').get(0);
@@ -289,7 +299,7 @@
             this.definition.position = new b2Vec2(this.details.x || 0, this.details.y || 0);
             this.definition.linearVelocity = new b2Vec2(this.details.vx || 0, this.details.vy || 0);
             this.definition.userData = this;
-            this.definition.type = this.details.type == "static" ? b2Body.b2_staticBody : b2Body.b2_dynamicBody;
+            this.definition.type = this.details.type == "dynamic" ? b2Body.b2_dynamicBody : b2Body.b2_staticBody;
 
             // Création des éléments
             this.body = {
@@ -538,6 +548,25 @@
             currentMouseJoint.SetTarget({x: currentMousePos.meterX, y: currentMousePos.meterY});
     });
 
+    var loadLevel = function(levelToLoad) {
+        level = levelToLoad;
+        for(var num in level.blocks) {
+            new physics.Body(level.blocks[num]);
+        }
+        start = new physics.Body(level.start);
+        finish = new physics.Body(level.finish);
+    };
+
+    $.urlParam = function(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if (results===null){
+       return null;
+    }
+    else{
+       return results[1] || 0;
+    }
+};
+
     // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
     canvas = $('#canvas');
     // we set the canvas' height and width here so that the physics world size scales with the size of the canvas' container
@@ -547,19 +576,40 @@
     canvasHeight = canvas.height();
     canvasOffset = canvas.offset();
 
-    //var block1 = new physics.Body({type: "static", color:"red", border:"black", x: 15, y:physics.toPixel(0.8,canvasHeight), height: (0.1*canvasHeight)/physics.scale, width: (0.3*canvasWidth)/physics.scale});
-    //var block2 = new physics.Body({type: "static", color:"red", border:"black", x:40, y:physics.toPixel(0.8,canvasHeight)});
-    
-    var block1 = new physics.Body({type: "static", color: "yellow", x:physics.toPixel(0.7, canvasWidth), sensor: true, y:physics.toPixel(0.35,canvasHeight), height: physics.toPixel(0.6, canvasHeight), width: physics.toPixel(0.05, canvasWidth)});
-    var block2 = new physics.Body({type: "static", color: "yellow", x:"center", sensor: true, y: "center", height: physics.toPixel(0.1, canvasHeight), width: physics.toPixel(0.3, canvasWidth)});
-    var start = new physics.Body({type: "static", color:"green", shape: "circle", sensor: true, x:physics.toPixel(0.08,canvasWidth), y:physics.toPixel(0.08,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
-    var finish = new physics.Body({type: "static", color:"red", shape: "circle", sensor: true, x:physics.toPixel(0.92,canvasWidth), y:physics.toPixel(0.92,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)});
+    // Taille en mètres du canvas sur mon écran: 40 x 12 mètres
+    levels[0] = {
+        num: 1,
+        blocks: [
+            {color: "yellow", x:physics.toPixel(0.7, canvasWidth), sensor: true, y:physics.toPixel(0.35,canvasHeight), 
+                height: physics.toPixel(0.6, canvasHeight), width: physics.toPixel(0.05, canvasWidth)},
+            {color: "yellow", x:"center", sensor: true, y: "center", 
+                height: physics.toPixel(0.1, canvasHeight), width: physics.toPixel(0.3, canvasWidth)}
+        ],
+        start: {color:"green", shape: "circle", sensor: true, x:physics.toPixel(0.08,canvasWidth), 
+            y:physics.toPixel(0.08,canvasHeight), radius: physics.toPixel(0.01, canvasWidth), vx: 15},
+        finish: {color:"red", shape: "circle", sensor: true, x:physics.toPixel(0.92,canvasWidth), 
+            y:physics.toPixel(0.92,canvasHeight), radius: physics.toPixel(0.01, canvasWidth)}
+    };
+
+    levels[1] = {
+        num: 2,
+        blocks: [
+            {color: "yellow", x:37, y:2, height:1, width:1},
+            {color: "yellow", x:17, y:8, height:1, width:15},
+        ],
+        start: {color:"green", shape: "circle", sensor: true, x:6, y:10, radius:0.4, vy: -14, vx: 2},
+        finish: {color:"red", shape: "circle", sensor: true, x:36, y:10, radius:0.4}
+    };
+
+    var levelPage = $.urlParam("level");
+    if(levelPage)
+        loadLevel(levels[Number(levelPage) - 1]);
+    else
+        loadLevel(levels[0]);
+
     physics.dragNDrop();
     //physics.debug();
     requestAnimationFrame(gameLoop);
-        // img.src = "./Resources/Landscape/bricks.jpg";
-        // metal.src = "./Resources/Landscape/metal.jpg";
 })();
 
 
-// TODO: destroy element if not yet placed and another element is created by button
