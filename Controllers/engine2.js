@@ -37,7 +37,7 @@
         };
         this.addToon = function() {
                 toon = new physics.Body({
-                color: "", 
+                color: "pink", 
                 border: "black", 
                 shape: "circle",
                 x: physics.toPixel(0.08,canvasWidth), 
