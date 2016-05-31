@@ -8,7 +8,7 @@
 
 
 	<body>
-		<nav class="navbar navbar-inverse">
+		<nav class="navbar navbar-inverse" ng-controller="NavbarController as navbar">
 			<div class="container-fluid">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -21,9 +21,8 @@
 				</div>
         <div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="#">The Game</a></li>
-						<li><a href="#">Help</a></li>
-						<li><a href="#">Contact</a></li>
+						<li ng-class="{active: navbar.isSelected(1)}"><a href="?level=1" ng-click="navbar.selectLevel(1)">Level 1</a></li>
+						<li ng-class="{active: navbar.isSelected(2)}"><a href="?level=2" ng-click="navbar.selectLevel(2)">Level 2</a></li>
 					</ul>
 				</div>
 			</div>
