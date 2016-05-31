@@ -31,11 +31,11 @@
 		<div id="gameDiv" class="container fill" ng-controller="GameController as game" >
 			<div class="row">
 				<div id="buttonsDiv" class="col-lg-2">
-					<button type="button" class="btn btn-default btn-block" ng-click="game.horizontal()">Horizontal Platform</button>
-					<button type="button" class="btn btn-default btn-block" ng-click="game.vertical()">Vertical Platform</button>
-					<button type="button" class="btn btn-default btn-block" ng-click="game.undo()">Undo</button>
+					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.horizontal()">Horizontal Platform</button>
+					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.vertical()">Vertical Platform</button>
+					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.undo()">Undo</button>
 					<button type="button" class="btn btn-default btn-block" ng-click="game.reset()">Reset</button>
-					<button type="button" class="btn btn-default btn-block btn-success" ng-click="game.launch()">Launch !</button>
+					<button id="launchButton" type="button" class="btn btn-default btn-block btn-success" ng-click="game.launch()">Launch !</button>
 				</div>
 				<div id="canvasDiv" class="col-lg-10">
 					<canvas id="canvas"></canvas>

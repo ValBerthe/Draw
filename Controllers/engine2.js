@@ -116,6 +116,9 @@
         this.launch = function() {
             if (launchEnabled === 0) {
                 launchEnabled = 1;
+                $('#launchButton').addClass('btn-danger');
+                $('#launchButton').text('stop !');
+                $('.launch-disabled').attr('disabled', true);
                 blockCheck = physics.world.GetBodyList();
                 while (blockCheck !== null) {
                     if (blockCheck.GetFixtureList() !== null) {
@@ -129,6 +132,9 @@
                 this.addToon();
             } else {
                 launchEnabled = 0;
+                $('#launchButton').removeClass('btn-danger');
+                $('#launchButton').text('launch !');
+                $('.launch-disabled').attr('disabled', false);
                 physics.world.DestroyBody(physics.world.GetBodyList());
                 blockCheck = physics.world.GetBodyList();
                 while (blockCheck !== null) {
@@ -428,7 +434,6 @@
                         obj.body.solid.SetType(2);
                     }
                 }
-
             });
 
             element.addEventListener("mousemove", function (e) {       // Lorsqu'on bouge la souris, on bouge l'élément
@@ -522,16 +527,7 @@
             currentMouseJoint.SetTarget({x: currentMousePos.meterX, y: currentMousePos.meterY});
     });
 
-    // If we click on the canvas with a joint element, it drops it
-    $('#canvas').click(function(event) {
-        if(currentMouseJoint) {
-            physics.world.DestroyJoint(currentMouseJoint);
-            currentMouseJoint = null;
-        }
-    });
-
     // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
-
     canvas = $('#canvas');
     // we set the canvas' height and width here so that the physics world size scales with the size of the canvas' container
     canvas.get(0).width = canvas.parent().width()*0.99;
@@ -553,3 +549,6 @@
     img.src = "./Resources/Landscape/bricks.jpg";
     metal.src = "./Resources/Landscape/metal.jpg";
 })();
+
+
+// TODO: destroy element if not yet placed and another element is created by button
