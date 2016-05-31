@@ -24,7 +24,7 @@
                     y:physics.toPixel(0.8,canvasHeight), 
                     height:physics.toPixel(0.05,canvasHeight), 
                     width:physics.toPixel(0.3,canvasWidth)
-                })
+                });
 
             var rectangle = new physics.Body({
                 color:"red", 
@@ -96,33 +96,33 @@
         };
 
         this.undo = function() {
-            if (undoLimit == 0 || launchEnabled == 1) {
+            if (undoLimit === 0 || launchEnabled == 1) {
                 return;
             }
             physics.world.DestroyBody(physics.world.GetBodyList());
             undoLimit -= 1;
-        }
+        };
 
 
         this.reset = function() {
             if (launchEnabled == 1) {
                 this.launch();
             }
-            while (undoLimit != 0) {
+            while (undoLimit !== 0) {
                 this.undo();
             }
-        }
+        };
 
         this.launch = function() {
-            if (launchEnabled == 0) {
+            if (launchEnabled === 0) {
                 launchEnabled = 1;
                 blockCheck = physics.world.GetBodyList();
-                while (blockCheck != null) {
-                    if (blockCheck.GetFixtureList() != null) {
+                while (blockCheck !== null) {
+                    if (blockCheck.GetFixtureList() !== null) {
                         blockCheck.GetFixtureList().SetSensor(false);
                     }                   
                     blockCheck = blockCheck.GetNext();
-                };
+                }
                 blockCheck = null;
                 start.body.solid.GetFixtureList().SetSensor(true);
                 finish.body.solid.GetFixtureList().SetSensor(true);
@@ -131,12 +131,12 @@
                 launchEnabled = 0;
                 physics.world.DestroyBody(physics.world.GetBodyList());
                 blockCheck = physics.world.GetBodyList();
-                while (blockCheck != null) {
-                    if (blockCheck.GetFixtureList() != null) {
+                while (blockCheck !== null) {
+                    if (blockCheck.GetFixtureList() !== null) {
                         blockCheck.GetFixtureList().SetSensor(true);
                     }                   
                     blockCheck = blockCheck.GetNext();
-                };
+                }
                 blockCheck = null;
             }
         };
@@ -312,7 +312,7 @@
 
 
             this.details.sensor = this.details.sensor || this.fixtureDefaults.sensor;
-            if (this.details.sensor == true) {
+            if (this.details.sensor === true) {
                 this.fixtureDef.isSensor = true;
             } else {
                 this.fixtureDef.isSensor = false;
@@ -422,7 +422,7 @@
                     obj = fixture.GetBody().GetUserData();
                 }, point);
                 if (obj) {
-                    if (obj.body.draggable == false) {
+                    if (obj.body.draggable === false) {
                         obj = null;
                     } else {
                         obj.body.solid.SetType(2);
@@ -551,8 +551,5 @@
     //physics.debug();
     requestAnimationFrame(gameLoop);
     img.src = "./Resources/Landscape/bricks.jpg";
-    metal.src = "./Resources/Landscape/metal.jpg"
-    
-
-    
+    metal.src = "./Resources/Landscape/metal.jpg";
 })();
