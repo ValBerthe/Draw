@@ -1,4 +1,4 @@
-(function() {
+(function(window) {
 
     // Angular stuff
 
@@ -47,11 +47,11 @@
         this.addToon = function(start) {
                 toon = new physics.Body({
                 type: "dynamic",
-                color: "pink", 
-                border: "black", 
+                color: "pink",
+                border: "black",
                 shape: "circle",
-                x: start.x, 
-                y: start.y, 
+                x: start.x,
+                y: start.y,
                 radius: start.radius,
                 vx: start.vx,
                 vy: start.vy,
@@ -93,7 +93,7 @@
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
                 height: 20, 
-                width: 3
+                width: 2
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
@@ -130,6 +130,7 @@
                 $('#launchButton').addClass('btn-danger');
                 $('#launchButton').text('stop !');
                 $('.launch-disabled').attr('disabled', true);
+                $.playSound("http://www.freesound.org/people/denao270/sounds/346373/download/346373__denao270__throwing-whip-effect");
                 blockCheck = physics.world.GetBodyList();
                 while (blockCheck !== null) {
                     if (blockCheck.GetFixtureList() !== null) {
@@ -518,6 +519,27 @@
             });
         };
 
+        var collisionListener = new Box2D.Dynamics.b2ContactListener();
+        collisionListener.BeginContact = function(contact) {
+            var element1 = contact.GetFixtureA().GetBody().GetUserData().details;
+            var element2 = contact.GetFixtureB().GetBody().GetUserData().details;
+            var toon = null;
+            var element = null;
+            if (element1.color === "pink") {
+                toon = element1;
+                element = element2;
+            }
+            else {
+                toon = element2;
+                element = element1;
+            }
+
+            if (element.color === "red") {
+                $("#myModal").modal("show");
+            }
+        };
+        world.SetContactListener(collisionListener);
+
         var toPixel = function(pos, hw) {
             return (pos/100*hw)/scale;
         };
@@ -580,15 +602,23 @@
         finish = new physics.Body(level.finish);
     };
 
+    var goToNextLevel = function() {
+        currentLevel = level.num;
+        if (currentLevel < levels.length)
+            location.href='?level=2';
+        else
+            location.reload();
+    };
+
     $.urlParam = function(name){
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    if (results===null){
-       return null;
-    }
-    else{
-       return results[1] || 0;
-    }
-};
+        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+        if (results===null){
+           return null;
+        }
+        else{
+           return results[1] || 0;
+        }
+    };
 
     // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
     canvas = $('#canvas');
@@ -606,11 +636,11 @@
             {color: "yellow", x:50, y:70, height:5, width:30},
             {color: "yellow", x:50, y:50, height:5, width:30},
         ],
-        start: {color:"green", shape: "circle", sensor: true, x:10, y:90, radius:1, vy: -1300, vx: 600},
+        start: {color:"green", shape: "circle", sensor: true, x:10, y:90, radius:1, vy: -1450, vx: 600},
         finish: {color:"red", shape: "circle", sensor: true, x:90, y:90, radius:1},
         solution: [
             {color: "purple", x:85, y:95, height:3, width:20},
-            {color: "purple", x:97, y:85, height:20, width:3},
+            {color: "purple", x:97, y:85, height:20, width:2},
         ]
     };
     levels[1] = {
@@ -622,11 +652,11 @@
         start: {color:"green", shape: "circle", sensor: true, x:8, y:8, radius: 1, vx: 1400},
         finish: {color:"red", shape: "circle", sensor: true, x:92, y:92, radius: 1},
         solution: [
-            {color: "purple", x:25, y:50, height:20, width:3},
+            {color: "purple", x:25, y:50, height:20, width:2},
             {color: "purple", x:35, y:70, height:3, width:20},
             {color: "purple", x:60, y:80, height:3, width:20},
             {color: "purple", x:85, y:97, height:3, width:20},
-            {color: "purple", x:97, y:85, height:20, width:3},
+            {color: "purple", x:97, y:85, height:20, width:2},
         ]
     };
 
@@ -639,6 +669,8 @@
     physics.dragNDrop();
     //physics.debug();
     requestAnimationFrame(gameLoop);
-})();
+
+    window.goToNextLevel = goToNextLevel;
+})(window);
 
 
