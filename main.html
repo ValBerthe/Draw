@@ -35,6 +35,7 @@
 					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.undo()">Undo</button>
 					<button type="button" class="btn btn-default btn-block" ng-click="game.reset()">Reset</button>
 					<button id="launchButton" type="button" class="btn btn-default btn-block btn-success" ng-click="game.launch()">Launch !</button>
+          <button id="solutionButton" type="button" class="btn btn-default btn-block bottomaligned launch-disabled" ng-click="game.showSolution()">Show solution</button>
 				</div>
 				<div id="canvasDiv" class="col-lg-10">
 					<canvas id="canvas"></canvas>
@@ -45,7 +46,6 @@
 		<script type="text/javascript" src="./Controllers/angular.min.js"></script>        
 		<script type="text/javascript" src="./Controllers/jquery.js"></script>
 		<script type="text/javascript" src="./Controllers/Box2D.js"></script>
-		<!-- <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script> -->
 		<script type="text/javascript" src="./Controllers/engine2.js"></script>
 	</body>
 </html>

@@ -146,7 +146,7 @@
                 $('#launchButton').removeClass('btn-danger');
                 $('#launchButton').text('launch !');
                 $('.launch-disabled').attr('disabled', false);
-                physics.world.DestroyBody(physics.world.GetBodyList());
+                physics.world.DestroyBody(toon.body.solid);
                 blockCheck = physics.world.GetBodyList();
                 while (blockCheck !== null) {
                     if (blockCheck.GetFixtureList() !== null) {
@@ -155,6 +155,23 @@
                     blockCheck = blockCheck.GetNext();
                 }
                 blockCheck = null;
+            }
+        };
+
+        this.showSolution = function() {
+            if (!isShownSolution) {
+                isShownSolution = true;
+                $('#solutionButton').text('Hide solution');
+                for(var num in level.solution) {
+                    solutionBlocks.push(new physics.Body(level.solution[num]));
+                }
+            }
+            else {
+                isShownSolution = false;
+                $('#solutionButton').text('Show solution');
+                for(var blockNum in solutionBlocks) {
+                    physics.world.DestroyBody(solutionBlocks[blockNum].body.solid);
+                }
             }
         };
     });
@@ -182,6 +199,8 @@
     var finish = null;
     var level = null;
     var levels = [];
+    var isShownSolution = false;
+    var solutionBlocks = [];
 
     var pastelColors = {
         red: "#DB3340",
@@ -189,6 +208,7 @@
         pink: "#F7EAC8",
         green: "#1FDA9A",
         blue: "#28ABE3",
+        purple: "#8331d6",
     };
 
 
@@ -299,7 +319,8 @@
                 this.definition[k] = this.details[k] || this.definitionDefaults[k];
             }
             this.definition.position = new b2Vec2(toPixel(this.details.x, canvasWidth) || 0, toPixel(this.details.y, canvasHeight) || 0);
-            this.definition.linearVelocity = new b2Vec2(toPixel(this.details.vx, canvasWidth) || 0, toPixel(this.details.vy, canvasHeight) || 0);
+            this.definition.linearVelocity = new b2Vec2(toPixel(this.details.vx, Math.sqrt(canvasWidth)) || 0, toPixel(this.details.vy, Math.sqrt(canvasHeight)) || 0);
+            // this.definition.linearVelocity = new b2Vec2(this.details.vx || 0, this.details.vy || 0);
             this.definition.userData = this;
             this.definition.type = this.details.type == "dynamic" ? b2Body.b2_dynamicBody : b2Body.b2_staticBody;
 
@@ -578,23 +599,35 @@
     canvasHeight = canvas.height();
     canvasOffset = canvas.offset();
 
+
     levels[0] = {
         num: 1,
         blocks: [
-            {color: "yellow", sensor: true, x:70, y:35, height: 60, width: 5},
-            {color: "yellow", sensor: true, x:50, y:50, height: 10, width: 30}
+            {color: "yellow", x:50, y:70, height:5, width:30},
+            {color: "yellow", x:50, y:50, height:5, width:30},
         ],
-        start: {color:"green", shape: "circle", sensor: true, x:8, y:8, radius: 1, vx: 50},
-        finish: {color:"red", shape: "circle", sensor: true, x:92, y:92, radius: 1}
+        start: {color:"green", shape: "circle", sensor: true, x:10, y:90, radius:1, vy: -1300, vx: 600},
+        finish: {color:"red", shape: "circle", sensor: true, x:90, y:90, radius:1},
+        solution: [
+            {color: "purple", x:85, y:95, height:3, width:20},
+            {color: "purple", x:97, y:85, height:20, width:3},
+        ]
     };
     levels[1] = {
         num: 2,
         blocks: [
-            {color: "yellow", x:50, y:50, height:5, width:30},
-            {color: "yellow", x:50, y:30, height:5, width:30},
+            {color: "yellow", sensor: true, x:70, y:35, height: 60, width: 5},
+            {color: "yellow", sensor: true, x:50, y:50, height: 10, width: 30}
         ],
-        start: {color:"green", shape: "circle", sensor: true, x:10, y:90, radius:1, vy: -90, vx: 15},
-        finish: {color:"red", shape: "circle", sensor: true, x:90, y:90, radius:1}
+        start: {color:"green", shape: "circle", sensor: true, x:8, y:8, radius: 1, vx: 1400},
+        finish: {color:"red", shape: "circle", sensor: true, x:92, y:92, radius: 1},
+        solution: [
+            {color: "purple", x:25, y:50, height:20, width:3},
+            {color: "purple", x:35, y:70, height:3, width:20},
+            {color: "purple", x:60, y:80, height:3, width:20},
+            {color: "purple", x:85, y:97, height:3, width:20},
+            {color: "purple", x:97, y:85, height:20, width:3},
+        ]
     };
 
     var levelPage = $.urlParam("level");
