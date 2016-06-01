@@ -93,7 +93,7 @@
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
                 height: 20, 
-                width: 3
+                width: 2
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
@@ -138,6 +138,7 @@
                     blockCheck = blockCheck.GetNext();
                 }
                 blockCheck = null;
+                $.playSound("http://www.freesound.org/people/OtisJames/sounds/215162/download/215162__otisjames__thud");
                 start.body.solid.GetFixtureList().SetSensor(true);
                 finish.body.solid.GetFixtureList().SetSensor(true);
                 this.addToon(level.start);
@@ -610,7 +611,7 @@
         finish: {color:"red", shape: "circle", sensor: true, x:90, y:90, radius:1},
         solution: [
             {color: "purple", x:85, y:95, height:3, width:20},
-            {color: "purple", x:97, y:85, height:20, width:3},
+            {color: "purple", x:97, y:85, height:20, width:2},
         ]
     };
     levels[1] = {
@@ -622,11 +623,11 @@
         start: {color:"green", shape: "circle", sensor: true, x:8, y:8, radius: 1, vx: 1400},
         finish: {color:"red", shape: "circle", sensor: true, x:92, y:92, radius: 1},
         solution: [
-            {color: "purple", x:25, y:50, height:20, width:3},
+            {color: "purple", x:25, y:50, height:20, width:2},
             {color: "purple", x:35, y:70, height:3, width:20},
             {color: "purple", x:60, y:80, height:3, width:20},
             {color: "purple", x:85, y:97, height:3, width:20},
-            {color: "purple", x:97, y:85, height:20, width:3},
+            {color: "purple", x:97, y:85, height:20, width:2},
         ]
     };
 
