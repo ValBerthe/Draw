@@ -11,8 +11,8 @@ levels[0] = {
     start: {color:"green", shape: "circle", sensor: true, x:10, y:90, radius:1, vy: -1450, vx: 600},
     finish: {color:"red", shape: "circle", sensor: true, x:90, y:90, radius:1},
     solution: [
-        {color: "purple", x:85, y:95, height:3, width:20},
-        {color: "purple", x:97, y:85, height:20, width:2},
+        {color: "purple", x:85, y:95, predefined:"horizontal"},
+        {color: "purple", x:97, y:85, predefined:"vertical"},
     ]
 };
 levels[1] = {
@@ -24,11 +24,12 @@ levels[1] = {
     start: {color:"green", shape: "circle", sensor: true, x:8, y:8, radius: 1, vx: 1400},
     finish: {color:"red", shape: "circle", sensor: true, x:92, y:92, radius: 1},
     solution: [
-        {color: "purple", x:25, y:50, height:20, width:2},
-        {color: "purple", x:35, y:70, height:3, width:20},
-        {color: "purple", x:60, y:80, height:3, width:20},
-        {color: "purple", x:85, y:97, height:3, width:20},
-        {color: "purple", x:97, y:85, height:20, width:2},
+        {color: "purple", x:25, y:50, predefined:"vertical"},
+        {color: "purple", x:35, y:70, predefined:"horizontal"},
+        {color: "purple", x:52, y:78, predefined:"tiltedDown"},
+        {color: "purple", x:65, y:90, predefined:"horizontal"},
+        {color: "purple", x:85, y:97, predefined:"horizontal"},
+        {color: "purple", x:97, y:85, predefined:"vertical"},
     ]
 };
 levels[2] = {
@@ -44,10 +45,12 @@ levels[2] = {
     start: {color:"green", shape: "circle", sensor: true, x:10, y:90, radius: 1, vx: 1600, vy: -2500},
     finish: {color:"red", shape: "circle", sensor: true, x:92, y:92, radius: 1},
     solution: [
-        {color: "purple", x:25, y:50, height:20, width:2},
-        {color: "purple", x:35, y:70, height:3, width:20},
-        {color: "purple", x:60, y:80, height:3, width:20},
-        {color: "purple", x:85, y:97, height:3, width:20},
-        {color: "purple", x:97, y:85, height:20, width:2},
+        {color: "purple", x:5, y:30, predefined:"vertical"},
+        {color: "purple", x:12, y:5, predefined:"tiltedUp"},
+        {color: "purple", x:60, y:38, predefined:"vertical"},
+        {color: "purple", x:50, y:70, predefined:"tiltedDown"},
+        {color: "purple", x:65, y:85, predefined:"tiltedDown"},
+        {color: "purple", x:85, y:96, predefined:"horizontal"},
+        {color: "purple", x:97, y:85, predefined:"vertical"},
     ]
 };

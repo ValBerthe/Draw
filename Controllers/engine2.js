@@ -68,8 +68,7 @@
                 sensor: true,
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
-                height: 3, 
-                width: 20
+                predefined: "horizontal",
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
@@ -92,8 +91,7 @@
                 sensor: true,
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
-                height: 20, 
-                width: 2,
+                predefined: "vertical",
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
@@ -106,7 +104,7 @@
             undoLimit += 1;
         };
 
-        this.tilted1 = function() {
+        this.tiltedDown = function() {
             // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
             var mouseElement = new physics.Body({
@@ -115,10 +113,8 @@
                 draggable: true,
                 sensor: true,
                 x: currentMousePos.meterX, 
-                y: currentMousePos.meterY, 
-                height: 30, 
-                width: 2,
-                angle: 45 * DEGREES_TO_RADIANS,
+                y: currentMousePos.meterY,
+                predefined: "tiltedDown",
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
@@ -131,7 +127,7 @@
             undoLimit += 1;
         };
 
-        this.tilted2 = function() {
+        this.tiltedUp = function() {
             // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
             var mouseElement = new physics.Body({
@@ -141,9 +137,10 @@
                 sensor: true,
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
-                height: 30, 
+                height: 25, 
                 width: 2,
-                angle: -45 * DEGREES_TO_RADIANS,
+                angle: 60,
+                predefined: "tiltedUp",
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
@@ -363,6 +360,29 @@
             if (this.details.y === "floor")
                 this.details.y = (canvasHeight / scale) - (this.details.height / 2);
 
+            if (this.details.predefined) {
+                switch (this.details.predefined) {
+                    case "horizontal":
+                        this.details.width = 20;
+                        this.details.height = 3;
+                        break;
+                    case "vertical":
+                        this.details.width = 2;
+                        this.details.height = 25;
+                        break;
+                    case "tiltedUp":
+                        this.details.width = 2;
+                        this.details.height = 25;
+                        this.details.angle = 60;
+                        break;
+                    case "tiltedDown":
+                        this.details.width = 2;
+                        this.details.height = 25;
+                        this.details.angle = -60;
+                        break;
+                }
+            }
+
             // Créer la définition
             this.definition = new b2BodyDef();
 
@@ -377,7 +397,7 @@
             this.definition.type = this.details.type == "dynamic" ? b2Body.b2_dynamicBody : b2Body.b2_staticBody;
 
             if (this.details.angle) {
-                this.definition.angle = this.details.angle;
+                this.definition.angle = this.details.angle * DEGREES_TO_RADIANS;
             }
 
             // Création des éléments
@@ -660,7 +680,7 @@
     var goToNextLevel = function() {
         currentLevel = level.num;
         if (currentLevel < levels.length)
-            location.href='?level=2';
+            location.href='?level=' + (level.num + 1);
         else
             location.reload();
     };
