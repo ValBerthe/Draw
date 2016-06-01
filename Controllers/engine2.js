@@ -93,7 +93,57 @@
                 x: currentMousePos.meterX, 
                 y: currentMousePos.meterY, 
                 height: 20, 
-                width: 2
+                width: 2,
+            });
+            var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
+            jointDefinition.bodyA = physics.world.GetGroundBody();
+            jointDefinition.bodyB = mouseElement.body.solid;
+            jointDefinition.target.Set(mouseElement.body.solid.GetWorldCenter().x, mouseElement.body.solid.GetWorldCenter().y);
+            jointDefinition.maxForce = 100000;
+            jointDefinition.timeStep = physics.stepAmount;
+            jointDefinition.collideConnected = true;
+            currentMouseJoint = physics.world.CreateJoint(jointDefinition);
+            undoLimit += 1;
+        };
+
+        this.tilted1 = function() {
+            // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
+            // See the callbacks defined at the end
+            var mouseElement = new physics.Body({
+                type: "dynamic",
+                color: "blue",
+                draggable: true,
+                sensor: true,
+                x: currentMousePos.meterX, 
+                y: currentMousePos.meterY, 
+                height: 30, 
+                width: 2,
+                angle: 45 * DEGREES_TO_RADIANS,
+            });
+            var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
+            jointDefinition.bodyA = physics.world.GetGroundBody();
+            jointDefinition.bodyB = mouseElement.body.solid;
+            jointDefinition.target.Set(mouseElement.body.solid.GetWorldCenter().x, mouseElement.body.solid.GetWorldCenter().y);
+            jointDefinition.maxForce = 100000;
+            jointDefinition.timeStep = physics.stepAmount;
+            jointDefinition.collideConnected = true;
+            currentMouseJoint = physics.world.CreateJoint(jointDefinition);
+            undoLimit += 1;
+        };
+
+        this.tilted2 = function() {
+            // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
+            // See the callbacks defined at the end
+            var mouseElement = new physics.Body({
+                type: "dynamic",
+                color: "blue",
+                draggable: true,
+                sensor: true,
+                x: currentMousePos.meterX, 
+                y: currentMousePos.meterY, 
+                height: 30, 
+                width: 2,
+                angle: -45 * DEGREES_TO_RADIANS,
             });
             var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
             jointDefinition.bodyA = physics.world.GetGroundBody();
@@ -199,7 +249,6 @@
     var start = null;
     var finish = null;
     var level = null;
-    var levels = [];
     var isShownSolution = false;
     var solutionBlocks = [];
 
@@ -211,6 +260,8 @@
         blue: "#28ABE3",
         purple: "#8331d6",
     };
+
+    var DEGREES_TO_RADIANS = Math.PI/180;
 
 
 
@@ -324,6 +375,10 @@
             // this.definition.linearVelocity = new b2Vec2(this.details.vx || 0, this.details.vy || 0);
             this.definition.userData = this;
             this.definition.type = this.details.type == "dynamic" ? b2Body.b2_dynamicBody : b2Body.b2_staticBody;
+
+            if (this.details.angle) {
+                this.definition.angle = this.details.angle;
+            }
 
             // Création des éléments
             this.body = {
@@ -628,37 +683,6 @@
     canvasWidth = canvas.width();
     canvasHeight = canvas.height();
     canvasOffset = canvas.offset();
-
-
-    levels[0] = {
-        num: 1,
-        blocks: [
-            {color: "yellow", x:50, y:70, height:5, width:30},
-            {color: "yellow", x:50, y:50, height:5, width:30},
-        ],
-        start: {color:"green", shape: "circle", sensor: true, x:10, y:90, radius:1, vy: -1450, vx: 600},
-        finish: {color:"red", shape: "circle", sensor: true, x:90, y:90, radius:1},
-        solution: [
-            {color: "purple", x:85, y:95, height:3, width:20},
-            {color: "purple", x:97, y:85, height:20, width:2},
-        ]
-    };
-    levels[1] = {
-        num: 2,
-        blocks: [
-            {color: "yellow", sensor: true, x:70, y:35, height: 60, width: 5},
-            {color: "yellow", sensor: true, x:50, y:50, height: 10, width: 30}
-        ],
-        start: {color:"green", shape: "circle", sensor: true, x:8, y:8, radius: 1, vx: 1400},
-        finish: {color:"red", shape: "circle", sensor: true, x:92, y:92, radius: 1},
-        solution: [
-            {color: "purple", x:25, y:50, height:20, width:2},
-            {color: "purple", x:35, y:70, height:3, width:20},
-            {color: "purple", x:60, y:80, height:3, width:20},
-            {color: "purple", x:85, y:97, height:3, width:20},
-            {color: "purple", x:97, y:85, height:20, width:2},
-        ]
-    };
 
     var levelPage = $.urlParam("level");
     if(levelPage)
