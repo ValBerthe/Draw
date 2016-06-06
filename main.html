@@ -41,6 +41,10 @@
           <button id="solutionButton" type="button" class="btn btn-default btn-block bottomaligned launch-disabled" ng-click="game.showSolution()">Show solution</button>
 				</div>
 				<div id="canvasDiv" class="col-lg-10">
+          <div id="ballIsOutAlert" class="alert alert-warning alert-dismissible" role="alert" hidden>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>The Ball is out</strong>
+          </div>
 					<canvas id="canvas"></canvas>
 				</div>
 			</div>

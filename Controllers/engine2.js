@@ -190,19 +190,7 @@
                 finish.body.solid.GetFixtureList().SetSensor(true);
                 this.addToon(level.start);
             } else {
-                launchEnabled = 0;
-                $('#launchButton').removeClass('btn-danger');
-                $('#launchButton').text('launch !');
-                $('.launch-disabled').attr('disabled', false);
-                physics.world.DestroyBody(toon.body.solid);
-                blockCheck = physics.world.GetBodyList();
-                while (blockCheck !== null) {
-                    if (blockCheck.GetFixtureList() !== null) {
-                        blockCheck.GetFixtureList().SetSensor(true);
-                    }                   
-                    blockCheck = blockCheck.GetNext();
-                }
-                blockCheck = null;
+                stopGame();
             }
         };
 
@@ -248,6 +236,7 @@
     var level = null;
     var isShownSolution = false;
     var solutionBlocks = [];
+    var toon = null;
 
     var pastelColors = {
         red: "#DB3340",
@@ -598,14 +587,14 @@
         collisionListener.BeginContact = function(contact) {
             var element1 = contact.GetFixtureA().GetBody().GetUserData().details;
             var element2 = contact.GetFixtureB().GetBody().GetUserData().details;
-            var toon = null;
+            var toonElement = null;
             var element = null;
             if (element1.color === "pink") {
-                toon = element1;
+                toonElement = element1;
                 element = element2;
             }
             else {
-                toon = element2;
+                toonElement = element2;
                 element = element1;
             }
 
@@ -656,6 +645,39 @@
         if(dt > 1/15) { dt = 1/15; }
         physics.step(dt);
         lastFrame = tm;
+        checkToonPresence();
+    };
+
+    var checkToonPresence = function() {
+        if (toon) {
+            toonPosition = toon.body.solid.m_xf.position;
+            var isOut = toonPosition.x > (canvasWidth/physics.scale) + 1 ||
+                        toonPosition.x < -1 ||
+                        toonPosition.y > (canvasHeight/physics.scale) + 1;
+            if (isOut) {
+                $("#ballIsOutAlert").slideDown(1000, function() {
+                    window.setTimeout(function() { $("#ballIsOutAlert").slideUp(1000); }, 500);
+                });
+                stopGame();
+            }
+        }
+    };
+
+    var stopGame = function() {
+        launchEnabled = 0;
+        $('#launchButton').removeClass('btn-danger');
+        $('#launchButton').text('launch !');
+        $('.launch-disabled').attr('disabled', false);
+        physics.world.DestroyBody(toon.body.solid);
+        blockCheck = physics.world.GetBodyList();
+        while (blockCheck !== null) {
+            if (blockCheck.GetFixtureList() !== null) {
+                blockCheck.GetFixtureList().SetSensor(true);
+            }                   
+            blockCheck = blockCheck.GetNext();
+        }
+        blockCheck = null;
+        toon = null;
     };
 
     // Everytime the mouse moves anywhere on the window, we get its position
