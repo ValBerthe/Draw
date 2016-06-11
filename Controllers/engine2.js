@@ -14,38 +14,10 @@
     });
 
     app.controller('GameController', function(){
-        this.addGreenBall = function() {
-            var ball = new physics.Body({
-                color:"green", 
-                shape: "circle", 
-                border: "black", 
-                x:(Math.random()*canvasWidth)/physics.scale, 
-                y:Math.random()*(canvasHeight/2)/physics.scale, 
-                radius: 0.5 + Math.random()
-            });
-        };
-        this.addRedRectangle = function() {
-                var rec = new physics.Body({
-                    type: "static",
-                    color:"red", 
-                    border:"black", 
-                    x:physics.toPixel(0.2,canvasWidth),
-                    y:physics.toPixel(0.8,canvasHeight), 
-                    height:physics.toPixel(0.05,canvasHeight), 
-                    width:physics.toPixel(0.3,canvasWidth)
-                });
-
-            var rectangle = new physics.Body({
-                color:"red", 
-                border:"black", 
-                x:(Math.random()*canvasWidth)/physics.scale, 
-                y:Math.random()*(canvasHeight/2)/physics.scale, 
-                height: 0.5 + Math.random(), 
-                width: 0.5 + Math.random()
-            });
-        };
         this.addToon = function(start) {
-                toon = new physics.Body({
+            if (currentMouseJoint)
+                this.destroyElement();
+            toon = new physics.Body({
                 type: "dynamic",
                 color: "pink",
                 border: "black",
@@ -61,6 +33,8 @@
         this.horizontal = function() {
             // We create a new grey horizontal rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
+            if (currentMouseJoint)
+                this.destroyElement();
             var mouseElement = new physics.Body({
                 type: "dynamic",
                 color: "blue",
@@ -84,6 +58,8 @@
         this.vertical = function() {
             // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
+            if (currentMouseJoint)
+                this.destroyElement();
             var mouseElement = new physics.Body({
                 type: "dynamic",
                 color: "blue",
@@ -107,6 +83,8 @@
         this.tiltedDown = function() {
             // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
+            if (currentMouseJoint)
+                this.destroyElement();
             var mouseElement = new physics.Body({
                 type: "dynamic",
                 color: "blue",
@@ -130,6 +108,8 @@
         this.tiltedUp = function() {
             // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
+            if (currentMouseJoint)
+                this.destroyElement();
             var mouseElement = new physics.Body({
                 type: "dynamic",
                 color: "blue",
@@ -154,6 +134,8 @@
         };
 
         this.undo = function() {
+            if (currentMouseJoint)
+                this.destroyElement();
             if (undoLimit === 0 || launchEnabled == 1) {
                 return;
             }
@@ -172,6 +154,8 @@
         };
 
         this.launch = function() {
+            if (currentMouseJoint)
+                this.destroyElement();
             if (launchEnabled === 0) {
                 launchEnabled = 1;
                 $('#launchButton').addClass('btn-danger');
@@ -195,6 +179,8 @@
         };
 
         this.showSolution = function() {
+            if (currentMouseJoint)
+                this.destroyElement();
             if (!isShownSolution) {
                 isShownSolution = true;
                 $('#solutionButton').text('Hide solution');
@@ -209,6 +195,14 @@
                     physics.world.DestroyBody(solutionBlocks[blockNum].body.solid);
                 }
             }
+        };
+
+        this.destroyElement = function() {
+            if (currentMouseJoint) {
+                physics.world.DestroyJoint(currentMouseJoint);
+                currentMouseJoint = null;
+            }
+            this.undo();
         };
     });
 
@@ -539,43 +533,34 @@
                 if (obj) {
                     if (obj.body.draggable === false) {
                         obj = null;
-                    } else {
+                    } else if (!currentMouseJoint) {
                         obj.body.solid.SetType(2);
+                        var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
+                        jointDefinition.bodyA = physics.world.GetGroundBody();
+                        jointDefinition.bodyB = obj.body.solid;
+                        jointDefinition.target.Set(obj.body.solid.GetWorldCenter().x, obj.body.solid.GetWorldCenter().y);
+                        jointDefinition.maxForce = 100000;
+                        jointDefinition.timeStep = physics.stepAmount;
+                        jointDefinition.collideConnected = true;
+                        currentMouseJoint = physics.world.CreateJoint(jointDefinition);
                     }
                 }
-            });
-
-            element.addEventListener("mousemove", function (e) {       // Lorsqu'on bouge la souris, on bouge l'élément
-                if (!obj) {
-                    return;
-                }
-                var point = calculateWorldPosition(e);
-
-                if (!joint) {
-                    var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
-
-                    jointDefinition.bodyA = world.GetGroundBody();
-                    jointDefinition.bodyB = obj.body.solid;
-                    jointDefinition.target.Set(obj.body.solid.GetWorldCenter().x, obj.body.solid.GetWorldCenter().y);
-                    jointDefinition.maxForce = 100000;
-                    jointDefinition.timeStep = stepAmount;
-                    jointDefinition.collideConnected = true;
-                    joint = world.CreateJoint(jointDefinition);
-                }
-
-                joint.SetTarget(new b2Vec2(point.x, point.y));
             });
 
             element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
                 if (obj) {
                     obj.body.solid.SetLinearVelocity({x:0,y:0});
                     obj.body.solid.SetType(0);
-                    //alert(obj.body.solid.GetType());
                 }
                 
                 if (joint) {
                     world.DestroyJoint(joint);
                     joint = null;
+                }
+
+                if (currentMouseJoint) {
+                    physics.world.DestroyJoint(currentMouseJoint);
+                    currentMouseJoint = null;
                 }
 
                 //obj.body.solid.SetType(0);
@@ -622,6 +607,16 @@
             toPixel: toPixel,
         };
     }();
+
+    // Everytime the mouse moves anywhere on the window, we get its position
+    $(document).mousemove(function(event) {
+        currentMousePos.pixelX = event.pageX;
+        currentMousePos.pixelY = event.pageY;
+        currentMousePos.meterX = (currentMousePos.pixelX - canvasOffset.left) / physics.scale;
+        currentMousePos.meterY = (currentMousePos.pixelY - canvasOffset.top) / physics.scale;
+        if (currentMouseJoint)
+            currentMouseJoint.SetTarget({x: currentMousePos.meterX, y: currentMousePos.meterY});
+    });
 
     // We inform the page that we want to use the RequestAnimationFrame method for the display (more efficient)
     window.requestAnimFrame = (function(){
@@ -680,16 +675,6 @@
         toon = null;
     };
 
-    // Everytime the mouse moves anywhere on the window, we get its position
-    $(document).mousemove(function(event) {
-        currentMousePos.pixelX = event.pageX;
-        currentMousePos.pixelY = event.pageY;
-        currentMousePos.meterX = (currentMousePos.pixelX - canvasOffset.left) / physics.scale;
-        currentMousePos.meterY = (currentMousePos.pixelY - canvasOffset.top) / physics.scale;
-        if (currentMouseJoint)
-            currentMouseJoint.SetTarget({x: currentMousePos.meterX, y: currentMousePos.meterY});
-    });
-
     var loadLevel = function(levelToLoad) {
         level = levelToLoad;
         for(var num in level.blocks) {
@@ -733,7 +718,7 @@
         loadLevel(levels[0]);
 
     physics.dragNDrop();
-    //physics.debug();
+    // physics.debug();
     requestAnimationFrame(gameLoop);
 
     window.goToNextLevel = goToNextLevel;
