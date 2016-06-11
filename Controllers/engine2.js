@@ -30,6 +30,23 @@
                 friction: 0,
             });
         };
+        // var addToon = function(start) {
+        //     if (currentMouseJoint)
+        //         this.destroyElement();
+        //     toon = new physics.Body({
+        //         type: "dynamic",
+        //         color: "pink",
+        //         border: "black",
+        //         shape: "circle",
+        //         x: start.x,
+        //         y: start.y,
+        //         radius: start.radius,
+        //         vx: start.vx,
+        //         vy: start.vy,
+        //         friction: 0,
+        //     });
+        // };
+
         this.horizontal = function() {
             // We create a new grey horizontal rectangle and bind it to the mouse to be placed with another click on the canvas
             // See the callbacks defined at the end
@@ -176,6 +193,36 @@
             } else {
                 stopGame();
             }
+        };
+        // var startGame = function() {
+        //     if (currentMouseJoint)
+        //         this.destroyElement();
+        //     if (launchEnabled === 0) {
+        //         launchEnabled = 1;
+        //         $('#launchButton').addClass('btn-danger');
+        //         $('#launchButton').text('stop !');
+        //         $('.launch-disabled').attr('disabled', true);
+        //         $.playSound("http://www.freesound.org/people/denao270/sounds/346373/download/346373__denao270__throwing-whip-effect");
+        //         blockCheck = physics.world.GetBodyList();
+        //         while (blockCheck !== null) {
+        //             if (blockCheck.GetFixtureList() !== null) {
+        //                 blockCheck.GetFixtureList().SetSensor(false);
+        //             }                   
+        //             blockCheck = blockCheck.GetNext();
+        //         }
+        //         blockCheck = null;
+        //         start.body.solid.GetFixtureList().SetSensor(true);
+        //         finish.body.solid.GetFixtureList().SetSensor(true);
+        //         this.addToon(level.start);
+        //     } else {
+        //         stopGame();
+        //     }
+        // };
+
+        this.keyPress = function($event) {
+            var keyPressed = $event.keyCode;
+            if (keyPressed === 32) // spacebar
+                this.launch();
         };
 
         this.showSolution = function() {

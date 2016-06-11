@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 
-	<body>
+	<body ng-controller="GameController as game" ng-keypress="game.keyPress($event)">
 		<nav class="navbar navbar-inverse" ng-controller="NavbarController as navbar">
 			<div class="container-fluid">
 				<div class="navbar-header">
@@ -27,7 +27,7 @@
 				</div>
 			</div>
 		</nav>
-		<div id="gameDiv" class="container fill" ng-controller="GameController as game" >
+		<div id="gameDiv" class="container fill">
 			<div class="row">
 				<div id="buttonsDiv" class="col-lg-2">
 					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.horizontal()">Horizontal Platform</button>
@@ -35,7 +35,7 @@
           <button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.tiltedDown()">Tilted Down</button>
 					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.tiltedUp()">Tilted Up</button>
           <hr>
-					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.undo()">Undo</button>
+					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.undo()"">Undo</button>
 					<button type="button" class="btn btn-default btn-block" ng-click="game.reset()">Reset</button>
 					<button id="launchButton" type="button" class="btn btn-default btn-block btn-success" ng-click="game.launch()">Launch !</button>
           <button id="solutionButton" type="button" class="btn btn-default btn-block bottomaligned launch-disabled" ng-click="game.showSolution()">Show solution</button>
@@ -64,7 +64,6 @@
           </div>
         </div>
       </div>   
-      
 		</div>
 
 
