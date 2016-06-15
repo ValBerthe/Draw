@@ -50,7 +50,7 @@
 
 
 
-    // Angular part
+    // *** Angular part ***
     var app = angular.module('runningBob', []); // main angularJS variable
 
     // Module handling the navigation bar
@@ -242,7 +242,13 @@
 
 
 
-    // **** Module physics : pour gérer box2d ****
+
+
+
+    // **** Physics Module: to handle Box2D interactions ****
+
+    // unfortunately it uses global variables of this file, it is thus not a proper independant module
+    // and it has to be kept in this file
     var physics = function() {
 
         // We shorten the access names of the box2d variables
@@ -257,17 +263,19 @@
         var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
         var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
-        // Création du monde
-        var gravity = new b2Vec2(0,9.8); // définition du vecteur gravité
-        var world = new b2World(gravity, true); // création du monde
+        // World creation
+        var gravity = new b2Vec2(0,9.8); // gravity vector
+        var world = new b2World(gravity, true);
+
+        // Other global variables
         var element = $('#canvas').get(0);
         var context = element.getContext("2d");
-        var scale = 30; // l'échelle (combien de pixels/m ?)
+        var scale = 30; // the physics scale - objects handled are considers 30 times bigger than on-screen size
         var dtRemaining = 0;
-        var stepAmount = 1/60; // pour l'animation fixe (1/60ème de seconde)
+        var stepAmount = 1/60; // for fixed animation (60 updates per second)
         var debugDraw;
 
-        // Ajout des propriétés du framerate fixe. Gère le switch entre le mode débug et le mode normal.
+        // Add fixed framerate properties. Handles the switch between debug and normal mode.
         step = function(dt) {
             dtRemaining += dt;
             while (dtRemaining > stepAmount) {
@@ -296,7 +304,7 @@
             }
         };
 
-        // Déclaration du débug
+        // Debug declaration
         var debug = function() {
             debugDraw = new b2DebugDraw();
             debugDraw.SetSprite(context);
@@ -307,7 +315,7 @@
             world.SetDebugDraw(debugDraw);
         };
 
-        // Constructeur pour les objets (rend beaucoup plus simple l'utilisation des classes de Box2D)
+        // Element constructor, makes it much easier to create elements on the fly
         var Body = function(detailsToSet) {
             // Defining defaults
             this.elementDefaults = {
@@ -362,39 +370,33 @@
                         break;
                 }
             }
-
-            // Créer la définition
             this.definition = new b2BodyDef();
 
-            // "Définir" la définition
+            // Setting properties of the definition
             for (var k in this.definitionDefaults) {
                 this.definition[k] = this.details[k] || this.definitionDefaults[k];
             }
             this.definition.position = new b2Vec2(toPixel(this.details.x, canvasWidth) || 0, toPixel(this.details.y, canvasHeight) || 0);
             this.definition.linearVelocity = new b2Vec2(toPixel(this.details.vx, Math.sqrt(canvasWidth)) || 0, toPixel(this.details.vy, Math.sqrt(canvasHeight)) || 0);
-            // this.definition.linearVelocity = new b2Vec2(this.details.vx || 0, this.details.vy || 0);
             this.definition.userData = this;
             this.definition.type = this.details.type == "dynamic" ? b2Body.b2_dynamicBody : b2Body.b2_staticBody;
-
             if (this.details.angle) {
                 this.definition.angle = this.details.angle * DEGREES_TO_RADIANS;
             }
 
-            // Création des éléments
+            // Creation of the element
             this.body = {
                 solid: physics.world.CreateBody(this.definition),
                 draggable: this.details.draggable || this.definitionDefaults.draggable
             };
 
-            // Création des fixtures
+            // Creation of the fixture
             this.fixtureDef = new b2FixtureDef();
             this.fixtureDef.density = this.details.density || this.fixtureDefaults.density;
             this.fixtureDef.friction = this.details.friction || this.fixtureDefaults.friction;
             this.fixtureDef.restitution = this.details.restitution || this.fixtureDefaults.restitution;
 
-
             this.details.shape = this.details.shape || this.elementDefaults.shape;
-
             switch (this.details.shape) {
                 case "circle":
                     this.details.radius = this.details.radius || this.elementDefaults.radius;
@@ -415,20 +417,16 @@
                     break;
             }
 
-
             this.details.sensor = this.details.sensor || this.fixtureDefaults.sensor;
             if (this.details.sensor === true) {
                 this.fixtureDef.isSensor = true;
             } else {
                 this.fixtureDef.isSensor = false;
             }
-
             this.details.draggable = this.details.draggable || this.definitionDefaults.draggable;
-
             this.body.solid.CreateFixture(this.fixtureDef);
 
-
-            // Gestion de l'apparence en jeu (utilisation du contexte du canvas)
+            // Handles the element's appearence in game (using the canvas' context)
             this.draw = function(context) {
                 var pos = this.body.solid.GetPosition();
                 var angle = this.body.solid.GetAngle();
@@ -437,10 +435,10 @@
 
                 context.save();
 
-                context.translate(pos.x, pos.y); // Translation et rotation
+                context.translate(pos.x, pos.y); // Translation and rotation
                 context.rotate(angle);
 
-                if (this.details.color) {      // Dessine la forme, si on désire mettre une couleur
+                if (this.details.color) {
                     context.fillStyle = pastelColors[this.details.color];
 
                     switch (this.details.shape) {
@@ -468,7 +466,7 @@
                     }
                 }
 
-                if (this.details.image) { // Remplit à l'aide d'une image si on le désire
+                if (this.details.image) { // We can use a texture image if we want to
                     context.drawImage(this.details.image, 10, 10, this.details.width*40, 
                         this.details.height*40, -this.details.width / 2, -this.details.height / 2, 
                         this.details.width, this.details.height);
@@ -505,19 +503,19 @@
             };
         };
 
-
-        //La fonction permettant le drag & drop
+        // Handles the drag and drop
         var dragNDrop = function () {
             var obj = null;
             var joint = null;
-            function calculateWorldPosition(e) {    // On calcule la position de l'élément, converti en mètres
+            function calculateWorldPosition(e) { // We get the element's position in meters
                 return {
                     x: (e.offsetX || e.layerX) / scale,
                     y: (e.offsetY || e.layerY) / scale
                 };
             }
 
-            element.addEventListener("mousedown", function (e) {       // On chope l'élément en question avec QueryPoint (déjà utilisé lors du Physics.click)
+            // We get the element with Box2D's QueryPoint function
+            element.addEventListener("mousedown", function (e) {
                 e.preventDefault();
                 if (launchEnabled == 1) {
                     return;
@@ -544,27 +542,26 @@
                 }
             });
 
-            element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
+            // On mouseup event we destroy the joint and remove the object's speed
+            element.addEventListener("mouseup", function (e) { 
                 if (obj) {
                     obj.body.solid.SetLinearVelocity({x:0,y:0});
                     obj.body.solid.SetType(0);
                 }
-                
                 if (joint) {
                     world.DestroyJoint(joint);
                     joint = null;
                 }
-
                 if (currentMouseJoint) {
                     physics.world.DestroyJoint(currentMouseJoint);
                     currentMouseJoint = null;
                 }
-
-                //obj.body.solid.SetType(0);
                 obj=null;  
             });
         };
 
+        // Detects the collisions between elements
+        // Used to detect when the toon reaches the goal
         var collisionListener = new Box2D.Dynamics.b2ContactListener();
         collisionListener.BeginContact = function(contact) {
             var element1 = contact.GetFixtureA().GetBody().GetUserData().details;
@@ -586,6 +583,7 @@
         };
         world.SetContactListener(collisionListener);
 
+        // Converts meters to pixels
         var toPixel = function(pos, hw) {
             return (pos/100*hw)/scale;
         };
