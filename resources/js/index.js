@@ -26,6 +26,8 @@
     var toon = null;
     var isShownSolution = false;
     var solutionBlocks = [];
+    var lastFrame = new Date().getTime();
+    var levelPage = null;
 
     // Level variables
     var level = null;
@@ -625,34 +627,7 @@
                 };
     })();
 
-    var lastFrame = new Date().getTime();
-
-    // gameLoop permet de gérer le focus ou non sur le jeu en cas d'alt+tab, en parallèle de requestAnimationFrame. 
-    window.gameLoop = function() {
-        var tm = new Date().getTime();
-        requestAnimationFrame(gameLoop);
-        var dt = (tm - lastFrame) / 1000;
-        if(dt > 1/15) { dt = 1/15; }
-        physics.step(dt);
-        lastFrame = tm;
-        checkToonPresence();
-    };
-
-    var checkToonPresence = function() {
-        if (toon) {
-            toonPosition = toon.body.solid.m_xf.position;
-            var isOut = toonPosition.x > (canvasWidth/physics.scale) + 1 ||
-                        toonPosition.x < -1 ||
-                        toonPosition.y > (canvasHeight/physics.scale) + 1;
-            if (isOut) {
-                $("#ballIsOutAlert").slideDown(1000, function() {
-                    window.setTimeout(function() { $("#ballIsOutAlert").slideUp(1000); }, 500);
-                });
-                stopGame();
-            }
-        }
-    };
-
+    // Stops the game, removes the toon
     var stopGame = function() {
         launchEnabled = 0;
         $('#launchButton').removeClass('btn-danger');
@@ -670,6 +645,34 @@
         toon = null;
     };
 
+    // Stops the game if the toon is considered out of the game
+    var checkToonPresence = function() {
+        if (toon) {
+            toonPosition = toon.body.solid.m_xf.position;
+            var isOut = toonPosition.x > (canvasWidth/physics.scale) + 1 ||
+                        toonPosition.x < -1 ||
+                        toonPosition.y > (canvasHeight/physics.scale) + 1;
+            if (isOut) {
+                $("#ballIsOutAlert").slideDown(1000, function() {
+                    window.setTimeout(function() { $("#ballIsOutAlert").slideUp(1000); }, 500);
+                });
+                stopGame();
+            }
+        }
+    };
+
+    // Main game loop. Keeps the game going even if the window looses focus
+    window.gameLoop = function() {
+        var tm = new Date().getTime();
+        requestAnimationFrame(gameLoop);
+        var dt = (tm - lastFrame) / 1000;
+        if(dt > 1/15) { dt = 1/15; }
+        physics.step(dt);
+        lastFrame = tm;
+        checkToonPresence();
+    };
+
+    // Loads a level by updating the global variables
     var loadLevel = function(levelToLoad) {
         level = levelToLoad;
         for(var num in level.blocks) {
@@ -679,6 +682,7 @@
         finish = new physics.Body(level.finish);
     };
 
+    // Loads the next level. If we are at the last level it simply reloads it
     var goToNextLevel = function() {
         currentLevel = level.num;
         if (currentLevel < levels.length)
@@ -687,6 +691,7 @@
             location.reload();
     };
 
+    // Returns the URL parameters
     $.urlParam = function(name){
         var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
         if (results===null){
@@ -697,25 +702,26 @@
         }
     };
 
-    // CREATION DES ELEMENTS DES DIFFERENTS NIVEAUX, A METTRE DANS UN FICHIER A PART POUR CHAQUE NIVEAU PLUS TARD
     canvas = $('#canvas');
     // we set the canvas' height and width here so that the physics world size scales with the size of the canvas' container
+    // Without it the word sizes is very small and the canvas only stretches it out
     canvas.get(0).width = canvas.parent().width();
     canvas.get(0).height = canvas.parent().height();
     canvasWidth = canvas.width();
     canvasHeight = canvas.height();
     canvasOffset = canvas.offset();
 
-    var levelPage = $.urlParam("level");
+    levelPage = $.urlParam("level");
     if(levelPage)
         loadLevel(levels[Number(levelPage) - 1]);
     else
         loadLevel(levels[0]);
 
+    // We activate the drag and drop, and start the main game loop.
     physics.dragNDrop();
-    // physics.debug();
     requestAnimationFrame(gameLoop);
 
+    // We bound the function to the window scope to call it from the html
     window.goToNextLevel = goToNextLevel;
 })(window);
 
