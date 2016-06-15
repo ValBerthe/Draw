@@ -1,9 +1,59 @@
+// self invoking function wrapping all the code
 (function(window) {
 
-    // Angular stuff
 
+    // Global variables
+
+    // Canvas properties
+    var canvas;
+    var canvasWidth;
+    var canvasHeight;
+    var canvasOffset;
+
+    // Constantly updated variable containing the mouse position in pixels and in meters(used in the game)
+    var currentMousePos = { 
+        pixelX: -1, 
+        pixelY: -1,
+        meterX: -1,
+        meterY: -1,
+    };
+
+    // Game state variables
+    var currentMouseJoint = null;
+    var launchEnabled = 0;
+    var undoLimit = 0;
+    var blockCheck = null;
+    var toon = null;
+    var isShownSolution = false;
+    var solutionBlocks = [];
+
+    // Level variables
+    var level = null;
+    var start = null;
+    var finish = null;
+
+    // Color palette
+    var pastelColors = {
+        red: "#DB3340",
+        yellow: "#E8B71A",
+        pink: "#F7EAC8",
+        green: "#1FDA9A",
+        blue: "#28ABE3",
+        purple: "#8331d6",
+    };
+
+    // Constant for rotations
+    var DEGREES_TO_RADIANS = Math.PI/180;
+
+
+
+
+
+
+    // *** Angular part ***
     var app = angular.module('runningBob', []); // main angularJS variable
 
+    // Module handling the navigation bar
     app.controller('NavbarController', function(){
         this.isSelected = function(checkLevel) {
             return level.num === checkLevel;
@@ -13,39 +63,14 @@
         };
     });
 
+    // Module handling the game buttons
     app.controller('GameController', function(){
-        this.addGreenBall = function() {
-            var ball = new physics.Body({
-                color:"green", 
-                shape: "circle", 
-                border: "black", 
-                x:(Math.random()*canvasWidth)/physics.scale, 
-                y:Math.random()*(canvasHeight/2)/physics.scale, 
-                radius: 0.5 + Math.random()
-            });
-        };
-        this.addRedRectangle = function() {
-                var rec = new physics.Body({
-                    type: "static",
-                    color:"red", 
-                    border:"black", 
-                    x:physics.toPixel(0.2,canvasWidth),
-                    y:physics.toPixel(0.8,canvasHeight), 
-                    height:physics.toPixel(0.05,canvasHeight), 
-                    width:physics.toPixel(0.3,canvasWidth)
-                });
-
-            var rectangle = new physics.Body({
-                color:"red", 
-                border:"black", 
-                x:(Math.random()*canvasWidth)/physics.scale, 
-                y:Math.random()*(canvasHeight/2)/physics.scale, 
-                height: 0.5 + Math.random(), 
-                width: 0.5 + Math.random()
-            });
-        };
+        // Adds a toon (the main element that has to attain the goal)
+        // Specific settings are contained in the start argument
         this.addToon = function(start) {
-                toon = new physics.Body({
+            if (currentMouseJoint)
+                this.destroyElement();
+            toon = new physics.Body({
                 type: "dynamic",
                 color: "pink",
                 border: "black",
@@ -58,9 +83,23 @@
                 friction: 0,
             });
         };
+        // Creates a box2d mouse joint between the mouse and the JointedElement
+        // Permits a smooth dragging of the element on the game panel
+        this.createMouseJoint = function(JointedElement) {
+            var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
+            jointDefinition.bodyA = physics.world.GetGroundBody();
+            jointDefinition.bodyB = JointedElement.body.solid;
+            jointDefinition.target.Set(JointedElement.body.solid.GetWorldCenter().x, JointedElement.body.solid.GetWorldCenter().y);
+            jointDefinition.maxForce = 100000;
+            jointDefinition.timeStep = physics.stepAmount;
+            jointDefinition.collideConnected = true;
+            currentMouseJoint = physics.world.CreateJoint(jointDefinition);
+            undoLimit += 1;
+        };
+        // Creates a horizontal element to place
         this.horizontal = function() {
-            // We create a new grey horizontal rectangle and bind it to the mouse to be placed with another click on the canvas
-            // See the callbacks defined at the end
+            if (currentMouseJoint)
+                this.destroyElement();
             var mouseElement = new physics.Body({
                 type: "dynamic",
                 color: "blue",
@@ -70,20 +109,12 @@
                 y: currentMousePos.meterY, 
                 predefined: "horizontal",
             });
-            var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
-            jointDefinition.bodyA = physics.world.GetGroundBody();
-            jointDefinition.bodyB = mouseElement.body.solid;
-            jointDefinition.target.Set(mouseElement.body.solid.GetWorldCenter().x, mouseElement.body.solid.GetWorldCenter().y);
-            jointDefinition.maxForce = 100000;
-            jointDefinition.timeStep = physics.stepAmount;
-            jointDefinition.collideConnected = true;
-            currentMouseJoint = physics.world.CreateJoint(jointDefinition);
-            undoLimit += 1;
+            this.createMouseJoint(mouseElement);
         };
-
+        // Creates a vertical element to place
         this.vertical = function() {
-            // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
-            // See the callbacks defined at the end
+            if (currentMouseJoint)
+                this.destroyElement();
             var mouseElement = new physics.Body({
                 type: "dynamic",
                 color: "blue",
@@ -93,20 +124,12 @@
                 y: currentMousePos.meterY, 
                 predefined: "vertical",
             });
-            var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
-            jointDefinition.bodyA = physics.world.GetGroundBody();
-            jointDefinition.bodyB = mouseElement.body.solid;
-            jointDefinition.target.Set(mouseElement.body.solid.GetWorldCenter().x, mouseElement.body.solid.GetWorldCenter().y);
-            jointDefinition.maxForce = 100000;
-            jointDefinition.timeStep = physics.stepAmount;
-            jointDefinition.collideConnected = true;
-            currentMouseJoint = physics.world.CreateJoint(jointDefinition);
-            undoLimit += 1;
+            this.createMouseJoint(mouseElement);
         };
-
+        // Creates a tilted down element to place
         this.tiltedDown = function() {
-            // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
-            // See the callbacks defined at the end
+            if (currentMouseJoint)
+                this.destroyElement();
             var mouseElement = new physics.Body({
                 type: "dynamic",
                 color: "blue",
@@ -116,20 +139,12 @@
                 y: currentMousePos.meterY,
                 predefined: "tiltedDown",
             });
-            var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
-            jointDefinition.bodyA = physics.world.GetGroundBody();
-            jointDefinition.bodyB = mouseElement.body.solid;
-            jointDefinition.target.Set(mouseElement.body.solid.GetWorldCenter().x, mouseElement.body.solid.GetWorldCenter().y);
-            jointDefinition.maxForce = 100000;
-            jointDefinition.timeStep = physics.stepAmount;
-            jointDefinition.collideConnected = true;
-            currentMouseJoint = physics.world.CreateJoint(jointDefinition);
-            undoLimit += 1;
+            this.createMouseJoint(mouseElement);
         };
-
+        // Creates a tilted up element to place
         this.tiltedUp = function() {
-            // We create a new grey vertical rectangle and bind it to the mouse to be placed with another click on the canvas
-            // See the callbacks defined at the end
+            if (currentMouseJoint)
+                this.destroyElement();
             var mouseElement = new physics.Body({
                 type: "dynamic",
                 color: "blue",
@@ -142,26 +157,19 @@
                 angle: 60,
                 predefined: "tiltedUp",
             });
-            var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
-            jointDefinition.bodyA = physics.world.GetGroundBody();
-            jointDefinition.bodyB = mouseElement.body.solid;
-            jointDefinition.target.Set(mouseElement.body.solid.GetWorldCenter().x, mouseElement.body.solid.GetWorldCenter().y);
-            jointDefinition.maxForce = 100000;
-            jointDefinition.timeStep = physics.stepAmount;
-            jointDefinition.collideConnected = true;
-            currentMouseJoint = physics.world.CreateJoint(jointDefinition);
-            undoLimit += 1;
+            this.createMouseJoint(mouseElement);
         };
-
+        // Removes the last placed element
         this.undo = function() {
+            if (currentMouseJoint)
+                this.destroyElement();
             if (undoLimit === 0 || launchEnabled == 1) {
                 return;
             }
             physics.world.DestroyBody(physics.world.GetBodyList());
             undoLimit -= 1;
         };
-
-
+        // Removes all the placed elements
         this.reset = function() {
             if (launchEnabled == 1) {
                 this.launch();
@@ -170,8 +178,11 @@
                 this.undo();
             }
         };
-
+        // Starts or stops the game depending on the launchEnabled value
         this.launch = function() {
+            if (currentMouseJoint)
+                this.destroyElement();
+
             if (launchEnabled === 0) {
                 launchEnabled = 1;
                 $('#launchButton').addClass('btn-danger');
@@ -193,8 +204,17 @@
                 stopGame();
             }
         };
-
+        // Callback function for key pressed
+        // Enambles the use of the spacebar to launch and stop
+        this.keyPress = function($event) {
+            var keyPressed = $event.keyCode;
+            if (keyPressed === 32) // spacebar
+                this.launch();
+        };
+        // Shows of hide the elements of the solution to the level
         this.showSolution = function() {
+            if (currentMouseJoint)
+                this.destroyElement();
             if (!isShownSolution) {
                 isShownSolution = true;
                 $('#solutionButton').text('Hide solution');
@@ -210,48 +230,25 @@
                 }
             }
         };
+        // destroys the current element and its mouse joint if there is one
+        this.destroyElement = function() {
+            if (currentMouseJoint) {
+                physics.world.DestroyJoint(currentMouseJoint);
+                currentMouseJoint = null;
+            }
+            this.undo();
+        };
     });
 
 
-    // Global variables
-
-    var canvas;
-    var canvasWidth;
-    var canvasHeight;
-    var canvasOffset;
-    // var img = new Image();
-    // var metal = new Image();
-    var currentMousePos = { 
-        pixelX: -1, 
-        pixelY: -1,
-        meterX: -1,
-        meterY: -1,
-    };
-    var currentMouseJoint = null;
-    var launchEnabled = 0;
-    var undoLimit = 0;
-    var blockCheck = null;
-    var start = null;
-    var finish = null;
-    var level = null;
-    var isShownSolution = false;
-    var solutionBlocks = [];
-    var toon = null;
-
-    var pastelColors = {
-        red: "#DB3340",
-        yellow: "#E8B71A",
-        pink: "#F7EAC8",
-        green: "#1FDA9A",
-        blue: "#28ABE3",
-        purple: "#8331d6",
-    };
-
-    var DEGREES_TO_RADIANS = Math.PI/180;
 
 
 
-    // **** Module physics : pour gérer box2d ****
+
+    // **** Physics Module: to handle Box2D interactions ****
+
+    // unfortunately it uses global variables of this file, it is thus not a proper independant module
+    // and it has to be kept in this file
     var physics = function() {
 
         // We shorten the access names of the box2d variables
@@ -266,17 +263,19 @@
         var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
         var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
-        // Création du monde
-        var gravity = new b2Vec2(0,9.8); // définition du vecteur gravité
-        var world = new b2World(gravity, true); // création du monde
+        // World creation
+        var gravity = new b2Vec2(0,9.8); // gravity vector
+        var world = new b2World(gravity, true);
+
+        // Other global variables
         var element = $('#canvas').get(0);
         var context = element.getContext("2d");
-        var scale = 30; // l'échelle (combien de pixels/m ?)
+        var scale = 30; // the physics scale - objects handled are considers 30 times bigger than on-screen size
         var dtRemaining = 0;
-        var stepAmount = 1/60; // pour l'animation fixe (1/60ème de seconde)
+        var stepAmount = 1/60; // for fixed animation (60 updates per second)
         var debugDraw;
 
-        // Ajout des propriétés du framerate fixe. Gère le switch entre le mode débug et le mode normal.
+        // Add fixed framerate properties. Handles the switch between debug and normal mode.
         step = function(dt) {
             dtRemaining += dt;
             while (dtRemaining > stepAmount) {
@@ -305,7 +304,7 @@
             }
         };
 
-        // Déclaration du débug
+        // Debug declaration
         var debug = function() {
             debugDraw = new b2DebugDraw();
             debugDraw.SetSprite(context);
@@ -316,7 +315,7 @@
             world.SetDebugDraw(debugDraw);
         };
 
-        // Constructeur pour les objets (rend beaucoup plus simple l'utilisation des classes de Box2D)
+        // Element constructor, makes it much easier to create elements on the fly
         var Body = function(detailsToSet) {
             // Defining defaults
             this.elementDefaults = {
@@ -371,39 +370,33 @@
                         break;
                 }
             }
-
-            // Créer la définition
             this.definition = new b2BodyDef();
 
-            // "Définir" la définition
+            // Setting properties of the definition
             for (var k in this.definitionDefaults) {
                 this.definition[k] = this.details[k] || this.definitionDefaults[k];
             }
             this.definition.position = new b2Vec2(toPixel(this.details.x, canvasWidth) || 0, toPixel(this.details.y, canvasHeight) || 0);
             this.definition.linearVelocity = new b2Vec2(toPixel(this.details.vx, Math.sqrt(canvasWidth)) || 0, toPixel(this.details.vy, Math.sqrt(canvasHeight)) || 0);
-            // this.definition.linearVelocity = new b2Vec2(this.details.vx || 0, this.details.vy || 0);
             this.definition.userData = this;
             this.definition.type = this.details.type == "dynamic" ? b2Body.b2_dynamicBody : b2Body.b2_staticBody;
-
             if (this.details.angle) {
                 this.definition.angle = this.details.angle * DEGREES_TO_RADIANS;
             }
 
-            // Création des éléments
+            // Creation of the element
             this.body = {
                 solid: physics.world.CreateBody(this.definition),
                 draggable: this.details.draggable || this.definitionDefaults.draggable
             };
 
-            // Création des fixtures
+            // Creation of the fixture
             this.fixtureDef = new b2FixtureDef();
             this.fixtureDef.density = this.details.density || this.fixtureDefaults.density;
             this.fixtureDef.friction = this.details.friction || this.fixtureDefaults.friction;
             this.fixtureDef.restitution = this.details.restitution || this.fixtureDefaults.restitution;
 
-
             this.details.shape = this.details.shape || this.elementDefaults.shape;
-
             switch (this.details.shape) {
                 case "circle":
                     this.details.radius = this.details.radius || this.elementDefaults.radius;
@@ -424,20 +417,16 @@
                     break;
             }
 
-
             this.details.sensor = this.details.sensor || this.fixtureDefaults.sensor;
             if (this.details.sensor === true) {
                 this.fixtureDef.isSensor = true;
             } else {
                 this.fixtureDef.isSensor = false;
             }
-
             this.details.draggable = this.details.draggable || this.definitionDefaults.draggable;
-
             this.body.solid.CreateFixture(this.fixtureDef);
 
-
-            // Gestion de l'apparence en jeu (utilisation du contexte du canvas)
+            // Handles the element's appearence in game (using the canvas' context)
             this.draw = function(context) {
                 var pos = this.body.solid.GetPosition();
                 var angle = this.body.solid.GetAngle();
@@ -446,10 +435,10 @@
 
                 context.save();
 
-                context.translate(pos.x, pos.y); // Translation et rotation
+                context.translate(pos.x, pos.y); // Translation and rotation
                 context.rotate(angle);
 
-                if (this.details.color) {      // Dessine la forme, si on désire mettre une couleur
+                if (this.details.color) {
                     context.fillStyle = pastelColors[this.details.color];
 
                     switch (this.details.shape) {
@@ -477,7 +466,7 @@
                     }
                 }
 
-                if (this.details.image) { // Remplit à l'aide d'une image si on le désire
+                if (this.details.image) { // We can use a texture image if we want to
                     context.drawImage(this.details.image, 10, 10, this.details.width*40, 
                         this.details.height*40, -this.details.width / 2, -this.details.height / 2, 
                         this.details.width, this.details.height);
@@ -514,19 +503,19 @@
             };
         };
 
-
-        //La fonction permettant le drag & drop
+        // Handles the drag and drop
         var dragNDrop = function () {
             var obj = null;
             var joint = null;
-            function calculateWorldPosition(e) {    // On calcule la position de l'élément, converti en mètres
+            function calculateWorldPosition(e) { // We get the element's position in meters
                 return {
                     x: (e.offsetX || e.layerX) / scale,
                     y: (e.offsetY || e.layerY) / scale
                 };
             }
 
-            element.addEventListener("mousedown", function (e) {       // On chope l'élément en question avec QueryPoint (déjà utilisé lors du Physics.click)
+            // We get the element with Box2D's QueryPoint function
+            element.addEventListener("mousedown", function (e) {
                 e.preventDefault();
                 if (launchEnabled == 1) {
                     return;
@@ -539,50 +528,40 @@
                 if (obj) {
                     if (obj.body.draggable === false) {
                         obj = null;
-                    } else {
+                    } else if (!currentMouseJoint) {
                         obj.body.solid.SetType(2);
+                        var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
+                        jointDefinition.bodyA = physics.world.GetGroundBody();
+                        jointDefinition.bodyB = obj.body.solid;
+                        jointDefinition.target.Set(obj.body.solid.GetWorldCenter().x, obj.body.solid.GetWorldCenter().y);
+                        jointDefinition.maxForce = 100000;
+                        jointDefinition.timeStep = physics.stepAmount;
+                        jointDefinition.collideConnected = true;
+                        currentMouseJoint = physics.world.CreateJoint(jointDefinition);
                     }
                 }
             });
 
-            element.addEventListener("mousemove", function (e) {       // Lorsqu'on bouge la souris, on bouge l'élément
-                if (!obj) {
-                    return;
-                }
-                var point = calculateWorldPosition(e);
-
-                if (!joint) {
-                    var jointDefinition = new Box2D.Dynamics.Joints.b2MouseJointDef();
-
-                    jointDefinition.bodyA = world.GetGroundBody();
-                    jointDefinition.bodyB = obj.body.solid;
-                    jointDefinition.target.Set(obj.body.solid.GetWorldCenter().x, obj.body.solid.GetWorldCenter().y);
-                    jointDefinition.maxForce = 100000;
-                    jointDefinition.timeStep = stepAmount;
-                    jointDefinition.collideConnected = true;
-                    joint = world.CreateJoint(jointDefinition);
-                }
-
-                joint.SetTarget(new b2Vec2(point.x, point.y));
-            });
-
-            element.addEventListener("mouseup", function (e) {     // Lorsqu'on lache le clic, on détruit le lien en supprimant la vitesse de l'objet
+            // On mouseup event we destroy the joint and remove the object's speed
+            element.addEventListener("mouseup", function (e) { 
                 if (obj) {
                     obj.body.solid.SetLinearVelocity({x:0,y:0});
                     obj.body.solid.SetType(0);
-                    //alert(obj.body.solid.GetType());
                 }
-                
                 if (joint) {
                     world.DestroyJoint(joint);
                     joint = null;
                 }
-
-                //obj.body.solid.SetType(0);
+                if (currentMouseJoint) {
+                    physics.world.DestroyJoint(currentMouseJoint);
+                    currentMouseJoint = null;
+                }
                 obj=null;  
             });
         };
 
+        // Detects the collisions between elements
+        // Used to detect when the toon reaches the goal
         var collisionListener = new Box2D.Dynamics.b2ContactListener();
         collisionListener.BeginContact = function(contact) {
             var element1 = contact.GetFixtureA().GetBody().GetUserData().details;
@@ -604,6 +583,7 @@
         };
         world.SetContactListener(collisionListener);
 
+        // Converts meters to pixels
         var toPixel = function(pos, hw) {
             return (pos/100*hw)/scale;
         };
@@ -622,6 +602,16 @@
             toPixel: toPixel,
         };
     }();
+
+    // Everytime the mouse moves anywhere on the window, we get its position
+    $(document).mousemove(function(event) {
+        currentMousePos.pixelX = event.pageX;
+        currentMousePos.pixelY = event.pageY;
+        currentMousePos.meterX = (currentMousePos.pixelX - canvasOffset.left) / physics.scale;
+        currentMousePos.meterY = (currentMousePos.pixelY - canvasOffset.top) / physics.scale;
+        if (currentMouseJoint)
+            currentMouseJoint.SetTarget({x: currentMousePos.meterX, y: currentMousePos.meterY});
+    });
 
     // We inform the page that we want to use the RequestAnimationFrame method for the display (more efficient)
     window.requestAnimFrame = (function(){
@@ -680,16 +670,6 @@
         toon = null;
     };
 
-    // Everytime the mouse moves anywhere on the window, we get its position
-    $(document).mousemove(function(event) {
-        currentMousePos.pixelX = event.pageX;
-        currentMousePos.pixelY = event.pageY;
-        currentMousePos.meterX = (currentMousePos.pixelX - canvasOffset.left) / physics.scale;
-        currentMousePos.meterY = (currentMousePos.pixelY - canvasOffset.top) / physics.scale;
-        if (currentMouseJoint)
-            currentMouseJoint.SetTarget({x: currentMousePos.meterX, y: currentMousePos.meterY});
-    });
-
     var loadLevel = function(levelToLoad) {
         level = levelToLoad;
         for(var num in level.blocks) {
@@ -733,7 +713,7 @@
         loadLevel(levels[0]);
 
     physics.dragNDrop();
-    //physics.debug();
+    // physics.debug();
     requestAnimationFrame(gameLoop);
 
     window.goToNextLevel = goToNextLevel;

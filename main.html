@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html ng-app="runningBob">
 	<head>
-		<link rel="stylesheet" href="./css/bootstrap.css">
-		<link rel="stylesheet" type="text/css" href="./Styles/style.css">
+		<link rel="stylesheet" href="vendors/bootstrap-3.3.6-dist/css/bootstrap.css">
+		<link rel="stylesheet" type="text/css" href="resources/css/style.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 	</head>
 
-	<body>
+	<body ng-controller="GameController as game" ng-keypress="game.keyPress($eventh)">
 		<nav class="navbar navbar-inverse" ng-controller="NavbarController as navbar">
 			<div class="container-fluid">
 				<div class="navbar-header">
@@ -27,7 +27,7 @@
 				</div>
 			</div>
 		</nav>
-		<div id="gameDiv" class="container fill" ng-controller="GameController as game" >
+		<div id="gameDiv" class="container fill">
 			<div class="row">
 				<div id="buttonsDiv" class="col-lg-2">
 					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.horizontal()">Horizontal Platform</button>
@@ -35,7 +35,7 @@
           <button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.tiltedDown()">Tilted Down</button>
 					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.tiltedUp()">Tilted Up</button>
           <hr>
-					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.undo()">Undo</button>
+					<button type="button" class="btn btn-default btn-block launch-disabled" ng-click="game.undo()"">Undo</button>
 					<button type="button" class="btn btn-default btn-block" ng-click="game.reset()">Reset</button>
 					<button id="launchButton" type="button" class="btn btn-default btn-block btn-success" ng-click="game.launch()">Launch !</button>
           <button id="solutionButton" type="button" class="btn btn-default btn-block bottomaligned launch-disabled" ng-click="game.showSolution()">Show solution</button>
@@ -64,16 +64,15 @@
           </div>
         </div>
       </div>   
-      
 		</div>
 
 
-		<script type="text/javascript" src="./Controllers/angular.min.js"></script>        
-    <script type="text/javascript" src="./Controllers/jquery.js"></script>
-		<script type="text/javascript" src="./js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="./Controllers/Box2D.js"></script>
-		<script type="text/javascript" src="./Controllers/jquery.playSound.js"></script>
-    <script type="text/javascript" src="./Controllers/levels.js"></script>
-		<script type="text/javascript" src="./Controllers/engine2.js"></script>
+		<script type="text/javascript" src="vendors/angular.min.js"></script>        
+    <script type="text/javascript" src="vendors/jquery.js"></script>
+		<script type="text/javascript" src="vendors/jquery.playSound.js"></script>
+    <script type="text/javascript" src="vendors/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="vendors/box2dweb-2.1a.4/Box2D.js"></script>
+    <script type="text/javascript" src="resources/js/levels.js"></script>
+		<script type="text/javascript" src="resources/js/index.js"></script>
 	</body>
 </html>
